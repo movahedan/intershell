@@ -1,4 +1,4 @@
-## Changelog
+## Changelog (root)
 
 [![Keep a Changelog](https://img.shields.io/badge/changelog-Keep%20a%20Changelog%20v1.0.0-$E05735)](https://keepachangelog.com)
 [![Semantic Versioning](https://img.shields.io/badge/semver-semantic%20versioning%20v2.0.0-%23E05735)](https://semver.org)
@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.3.1
+###### <a href="/commit/98ca91d6c32b2c952c9014a45456855edd1402d9"><img src="https://img.shields.io/badge/chore-(noscope)-495057?style=flat" alt="chore" style="vertical-align: middle;" /></a> update README ([98ca91d](/commit/98ca91d6c32b2c952c9014a45456855edd1402d9)) by **Soheil Movahedan**
+###### <a href="/commit/bb05b9461799310e506ef481ad6173c77faf26df"><img src="https://img.shields.io/badge/fix-(noscope)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> update package.json exports to use dist files and add build config ([bb05b94](/commit/bb05b9461799310e506ef481ad6173c77faf26df)) by **Soheil Movahedan**
 ## v0.3.0
 ###### <a href="https://github.com/movahedan/monobun/commit/107aba79d0de0eb9cb216b9c78c28c248cbad00f"><img src="https://img.shields.io/badge/fix-(@repo/intershell)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> resolve dependency analyzer and version preparation issues ([107aba7](https://github.com/movahedan/monobun/commit/107aba79d0de0eb9cb216b9c78c28c248cbad00f)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/monobun/commit/02995f39862b62f20a4acf22b5ee19abd8958719"><img src="https://img.shields.io/badge/refactor-(@repo/intershell)-007ACC?style=flat" alt="refactor" style="vertical-align: middle;" /></a> restructure entities with improved naming and organization ([02995f3](https://github.com/movahedan/monobun/commit/02995f39862b62f20a4acf22b5ee19abd8958719)) by **Soheil Movahedan**

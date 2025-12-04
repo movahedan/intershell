@@ -58,9 +58,22 @@ export class EntityCompose {
 	}
 
 	async getCompose(): Promise<ComposeData> {
-		this.compose =
-			this.compose || EntityCompose.parseDockerCompose(await Bun.file(this.composePath).text());
-		return this.compose;
+		if (await Bun.file(this.composePath).exists()) {
+			const compose = await Bun.file(this.composePath).text();
+			this.compose = this.compose || EntityCompose.parseDockerCompose(compose);
+			return this.compose;
+		}
+
+		return {
+			version: "3.8",
+			services: {},
+			networks: {},
+			volumes: {},
+			validation: {
+				isValid: true,
+				errors: [],
+			},
+		};
 	}
 
 	async getServices(): Promise<ServiceInfo[]> {
