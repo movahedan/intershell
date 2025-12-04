@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.3.2
+###### <a href="https://github.com/movahedan/intershell.git/commit/7475591731e7191090d0736a57572aada4c3896a"><img src="https://img.shields.io/badge/chore-(noscope)-495057?style=flat" alt="chore" style="vertical-align: middle;" /></a> update package.json with repository ([7475591](https://github.com/movahedan/intershell.git/commit/7475591731e7191090d0736a57572aada4c3896a)) by **Soheil Movahedan**
 ## v0.3.1
 ###### <a href="/commit/98ca91d6c32b2c952c9014a45456855edd1402d9"><img src="https://img.shields.io/badge/chore-(noscope)-495057?style=flat" alt="chore" style="vertical-align: middle;" /></a> update README ([98ca91d](/commit/98ca91d6c32b2c952c9014a45456855edd1402d9)) by **Soheil Movahedan**
 ###### <a href="/commit/bb05b9461799310e506ef481ad6173c77faf26df"><img src="https://img.shields.io/badge/fix-(noscope)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> update package.json exports to use dist files and add build config ([bb05b94](/commit/bb05b9461799310e506ef481ad6173c77faf26df)) by **Soheil Movahedan**
