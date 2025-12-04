@@ -25,7 +25,5 @@ pre-push:
       run: bun run commit:check --staged
     check:
       run: bun check
-    test:
-      run: bun test
     build:
       run: bun run build

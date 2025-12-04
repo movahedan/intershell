@@ -3,6 +3,14 @@
 	"name": "intershell",
 	"version": "0.3.1",
 	"description": "Bun‑first CLI toolkit for developer workflow automation in monorepos and monoliths.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/movahedan/intershell.git"
+	},
+	"bugs": {
+		"url": "https://github.com/movahedan/intershell/issues"
+	},
+	"homepage": "https://github.com/movahedan/intershell#readme",
 	"packageManager": "bun@1.3.1",
 	"engines": {
 		"bun": ">=1.0.0"
