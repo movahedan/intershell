@@ -15,9 +15,9 @@
 		"intershell": "./dist/index.js"
 	},
 	"exports": {
-		"./core": "./src/core/index.ts",
-		".": "./index.ts",
-		"./entities": "./src/entities/index.ts"
+		"./core": "./dist/core/index.js",
+		".": "./dist/index.js",
+		"./entities": "./dist/entities/index.js"
 	},
 	"oclif": {
 		"bin": "intershell",
