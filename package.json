@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "intershell",
-	"version": "0.3.3",
+	"version": "0.3.4",
 	"description": "Bun‑first CLI toolkit for developer workflow automation in monorepos and monoliths.",
 	"license": "MIT",
 	"author": "Soheil Movahedan <soheil.movahedan@gmail.com>",
@@ -25,9 +25,9 @@
 		"intershell": "./dist/index.js"
 	},
 	"exports": {
-		"./core": "./dist/core/index.js",
-		".": "./dist/index.js",
-		"./entities": "./dist/entities/index.js"
+		"./core": "./src/core/index.ts",
+		".": "./index.ts",
+		"./entities": "./src/entities/index.ts"
 	},
 	"oclif": {
 		"bin": "intershell",

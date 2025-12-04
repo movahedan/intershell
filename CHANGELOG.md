@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.3.4
+###### <a href="https://github.com/movahedan/intershell.git/commit/fcc7c2a1730b002acf5b8df2ba2cf2420553475f"><img src="https://img.shields.io/badge/chore-(noscope)-495057?style=flat" alt="chore" style="vertical-align: middle;" /></a> add license and update package.json metadata ([fcc7c2a](https://github.com/movahedan/intershell.git/commit/fcc7c2a1730b002acf5b8df2ba2cf2420553475f)) by **Soheil Movahedan**
 ## v0.3.3
 ###### <a href="https://github.com/movahedan/intershell.git/commit/d46bdc2aa8dd2ca8b9de058940e978aae8e3bc33"><img src="https://img.shields.io/badge/chore-(noscope)-495057?style=flat" alt="chore" style="vertical-align: middle;" /></a> update package.json with repository ([d46bdc2](https://github.com/movahedan/intershell.git/commit/d46bdc2aa8dd2ca8b9de058940e978aae8e3bc33)) by **Soheil Movahedan**
 ## v0.3.1
