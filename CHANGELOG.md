@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## intershell-v0.3.0
+## v0.3.0
 ###### <a href="https://github.com/movahedan/monobun/commit/107aba79d0de0eb9cb216b9c78c28c248cbad00f"><img src="https://img.shields.io/badge/fix-(@repo/intershell)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> resolve dependency analyzer and version preparation issues ([107aba7](https://github.com/movahedan/monobun/commit/107aba79d0de0eb9cb216b9c78c28c248cbad00f)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/monobun/commit/02995f39862b62f20a4acf22b5ee19abd8958719"><img src="https://img.shields.io/badge/refactor-(@repo/intershell)-007ACC?style=flat" alt="refactor" style="vertical-align: middle;" /></a> restructure entities with improved naming and organization ([02995f3](https://github.com/movahedan/monobun/commit/02995f39862b62f20a4acf22b5ee19abd8958719)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/monobun/commit/aa8918d953ab9b23ce1ef28e65ac52232898fdb0"><img src="https://img.shields.io/badge/docs-(noscope)-646CFF?style=flat" alt="docs" style="vertical-align: middle;" /></a> update documentation to reflect entity restructuring ([aa8918d](https://github.com/movahedan/monobun/commit/aa8918d953ab9b23ce1ef28e65ac52232898fdb0)) by **Soheil Movahedan**
@@ -23,7 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ###### <a href="https://github.com/movahedan/monobun/commit/000f33e84f4fcb39d640d12a65f70b3d76213b64"><img src="https://img.shields.io/badge/feat-(@repo/intershell)-00D4AA?style=flat" alt="feat" style="vertical-align: middle;" /></a> add EntityCommitPackage and EntityTagPackage entities ([000f33e](https://github.com/movahedan/monobun/commit/000f33e84f4fcb39d640d12a65f70b3d76213b64)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/monobun/commit/fd75b471be121d731fd40dc858547a9f94348f2d"><img src="https://img.shields.io/badge/fix-(noscope)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> intershell branch name config ([fd75b47](https://github.com/movahedan/monobun/commit/fd75b471be121d731fd40dc858547a9f94348f2d)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/monobun/commit/a2c447dcb15fecd71f77d2e266b221f019dd0306"><img src="https://img.shields.io/badge/deps-(noscope)-059669?style=flat" alt="deps" style="vertical-align: middle;" /></a> finish upgrading typescript to 5.9.2 and update renovate ([a2c447d](https://github.com/movahedan/monobun/commit/a2c447dcb15fecd71f77d2e266b221f019dd0306)) by **Soheil Movahedan**
-## intershell-v0.2.0
 ###### <a href="https://github.com/movahedan/monobun/commit/5b251b7f6566b115158caaffb673eb8e8b380f05"><img src="https://img.shields.io/badge/release-(api)-059669?style=flat" alt="release" style="vertical-align: middle;" /></a> api-v0.1.0 [minor] (0.0.0 => 0.1.0) ([5b251b7](https://github.com/movahedan/monobun/commit/5b251b7f6566b115158caaffb673eb8e8b380f05)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/monobun/commit/53d0b76db1b6ecf956078018fab025119ab5240c"><img src="https://img.shields.io/badge/fix-(@repo/intershell)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> clean up version tests and fix all type errors ([53d0b76](https://github.com/movahedan/monobun/commit/53d0b76db1b6ecf956078018fab025119ab5240c)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/monobun/commit/7abec14532f8adfc12f62d9ce0c6e51bb3db5ca7"><img src="https://img.shields.io/badge/fix-(@repo/intershell)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> improve tag validation to use proper package lookup ([7abec14](https://github.com/movahedan/monobun/commit/7abec14532f8adfc12f62d9ce0c6e51bb3db5ca7)) by **Soheil Movahedan**
@@ -189,16 +188,16 @@ This PR refactors the intershell package to improve performance, code quality, a
 
 ### 🔄 feature/staged-check <img src="https://img.shields.io/badge/Code%20Quality%20%26%20Refactoring-495057?style=flat" alt="Code Quality & Refactoring" style="vertical-align: middle;" /> <a href="https://github.com/movahedan/monobun/pull/172"><img src="https://img.shields.io/badge/%23172-blue?style=flat" alt="#172" style="vertical-align: middle;" /></a> <img src="https://img.shields.io/badge/2%20commits-green?style=flat" alt="2 commits" style="vertical-align: middle;" />
 
-## Overview
+#### Overview
 This PR refactors the commit validation system to improve code organization and add comprehensive staged file validation capabilities.
-## Key Changes
+#### Key Changes
 - Staged File Validation: Added getStagedFiles() and validateStagedFiles() methods to EntityCommit
 - Naming Consistency: Renamed prefixes to prefix throughout branch entity for better clarity
 - Code Organization: Moved staged file validation logic from scripts into the commit entity
 - Enhanced Validation: Added configurable validation rules with file patterns, content patterns, and ignore rules
 - CI Environment Support: Improved error handling and CI environment detection
 - Bug Fixes: Fixed duplicate error throwing in commit-check script
-## Technical Notes
+#### Technical Notes
 - No Breaking Changes: All public APIs remain compatible
 - Enhanced Validation: New StagedConfig type for configurable validation rules
 - Better Separation of Concerns: Validation logic moved from scripts to entities
@@ -218,12 +217,12 @@ This PR refactors the commit validation system to improve code organization and 
 
 #### 🎯 Overview
 This PR introduces a major architectural refactoring by creating the new  CLI framework package and reorganizing the development infrastructure.
-##### ✨ Key Changes
+###### ✨ Key Changes
 - **New CLI Framework Package**: Created  with core utilities, entities, and interactive CLI capabilities
 - **Docker Reorganization**: Moved development Docker files from  to root for better accessibility
 - **Script Modernization**: Updated all scripts to use the new intershell package, removing duplicated code
 - **Dependency Cleanup**: Removed old entities and shell utilities, added  as workspace dependency
-##### 🔧 Technical Notes
+###### 🔧 Technical Notes
 - **Breaking Change**: This refactoring removes old CLI utilities from  directory
 - **New Package Structure**:  provides modular CLI framework with TypeScript support
 - **Improved Maintainability**: Centralized CLI logic reduces code duplication across the monorepo

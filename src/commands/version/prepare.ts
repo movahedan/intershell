@@ -151,17 +151,23 @@ export default class VersionPrepare extends Command {
 			`\n\t${versionCommitMessage.replace(/\n/g, "\n\t")}`,
 		);
 
-		const services = await new EntityCompose("docker-compose.yml").getServices();
-		const servicesToDeploy = services.filter((s) => s.name === packageName).map((s) => s.name);
-		if (servicesToDeploy) {
-			const servicesToDeployNames = servicesToDeploy.join(",");
-			if (process.env.GITHUB_OUTPUT) {
-				await fs.promises.appendFile(
-					process.env.GITHUB_OUTPUT,
-					`packages-to-deploy=${servicesToDeployNames}\n`,
-				);
+		try {
+			const services = await new EntityCompose("docker-compose.yml").getServices();
+			const servicesToDeploy = services.filter((s) => s.name === packageName).map((s) => s.name);
+			if (servicesToDeploy) {
+				const servicesToDeployNames = servicesToDeploy.join(",");
+				if (process.env.GITHUB_OUTPUT) {
+					await fs.promises.appendFile(
+						process.env.GITHUB_OUTPUT,
+						`packages-to-deploy=${servicesToDeployNames}\n`,
+					);
+				}
+				this.log(`\n🚀 Packages to deploy: ${colorify.blue(servicesToDeployNames)}`);
 			}
-			this.log(`\n🚀 Packages to deploy: ${colorify.blue(servicesToDeployNames)}`);
+		} catch (error) {
+			this.log(
+				colorify.yellow(`📦 ${packageName}: ${colorify.yellow("No services found")}: ${error}`),
+			);
 		}
 
 		this.log(
