@@ -3,6 +3,8 @@
 	"name": "intershell",
 	"version": "0.3.3",
 	"description": "Bun‑first CLI toolkit for developer workflow automation in monorepos and monoliths.",
+	"license": "MIT",
+	"author": "Soheil Movahedan <soheil.movahedan@gmail.com>",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/movahedan/intershell.git"
