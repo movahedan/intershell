@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "intershell",
-	"version": "0.3.5",
+	"version": "0.3.6",
 	"description": "Bun‑first CLI toolkit for developer workflow automation in monorepos and monoliths.",
 	"license": "MIT",
 	"author": "Soheil Movahedan <soheil.movahedan@gmail.com>",

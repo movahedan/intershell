@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.3.6
+###### <a href="https://github.com/movahedan/intershell.git/commit/478ab5cd12eff96aa34acfb14498222151fc219f"><img src="https://img.shields.io/badge/fix-(noscope)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> correct package.json exports to point to compiled .js files ([478ab5c](https://github.com/movahedan/intershell.git/commit/478ab5cd12eff96aa34acfb14498222151fc219f)) by **Soheil Movahedan**
 ## v0.3.5
 ###### <a href="https://github.com/movahedan/intershell.git/commit/0f5bd66a900c4e3b38eb43b635b1237fe438ec48"><img src="https://img.shields.io/badge/chore-(noscope)-495057?style=flat" alt="chore" style="vertical-align: middle;" /></a> update deps ([0f5bd66](https://github.com/movahedan/intershell.git/commit/0f5bd66a900c4e3b38eb43b635b1237fe438ec48)) by **Soheil Movahedan**
 ## v0.3.4
