@@ -25,9 +25,9 @@
 		"intershell": "./dist/index.js"
 	},
 	"exports": {
-		"./core": "./src/core/index.ts",
-		".": "./index.ts",
-		"./entities": "./src/entities/index.ts"
+		"./core": "./dist/core/index.js",
+		".": "./dist/index.js",
+		"./entities": "./dist/entities/index.js"
 	},
 	"oclif": {
 		"bin": "intershell",
@@ -46,7 +46,6 @@
 	"scripts": {
 		"check:types": "tsc --noEmit",
 		"build": "rm -rf dist && tsc -p tsconfig.build.json && echo '#!/usr/bin/env bun' > dist/index.js.tmp && tail -n +2 dist/index.js >> dist/index.js.tmp && mv dist/index.js.tmp dist/index.js",
-		"postbuild": "bun run dist/index.js update-package-json",
 		"check": "biome check .",
 		"check:fix": "biome check . --write",
 		"test": "bun test",
