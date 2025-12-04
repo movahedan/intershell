@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "intershell",
-	"version": "0.3.1",
+	"version": "0.3.3",
 	"description": "Bun‑first CLI toolkit for developer workflow automation in monorepos and monoliths.",
 	"repository": {
 		"type": "git",
