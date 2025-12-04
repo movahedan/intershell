@@ -1,0 +1,30 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"target": "ESNext",
+		"types": ["node", "bun-types"],
+		"composite": false,
+		"declaration": true,
+		"declarationMap": true,
+		"noEmit": true,
+		"sourceMap": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"allowImportingTsExtensions": false,
+		"inlineSources": false,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"preserveWatchOutput": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true
+	},
+	"include": ["."],
+	"exclude": ["**/node_modules/**", "**/dist/**", "**/.turbo/**"]
+}

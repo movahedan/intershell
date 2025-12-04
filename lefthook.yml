@@ -1,0 +1,31 @@
+# https://lefthook.dev/configuration/
+
+pre-commit:
+  parallel: true
+  commands:
+    staged-check:
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,html,css,md,mdx,yaml,yml}"
+      run: bun run commit:check --staged && bun biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    types:
+      glob: "*.{ts,tsx}"
+      run: bun run check:types
+
+commit-msg:
+  commands:
+    commit-check:
+      run: bun run commit:check --message-file {1}
+
+pre-push:
+  parallel: true
+  commands:
+    commit-validation:
+      run: bun run commit:check --branch
+    staged-validation:
+      run: bun run commit:check --staged
+    check:
+      run: bun check
+    test:
+      run: bun test
+    build:
+      run: bun run build
