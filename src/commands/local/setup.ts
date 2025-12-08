@@ -4,20 +4,11 @@ import { colorify } from "../../core";
 
 export default class LocalSetup extends Command {
 	static description =
-		"Complete local development environment setup with dependency installation, local builds, and VS Code configuration sync";
+		"Complete local development environment setup with dependency installation, local builds";
 
-	static examples = [
-		"intershell local:setup",
-		"intershell local:setup --skip-vscode",
-		"intershell local:setup --skip-tests",
-	];
+	static examples = ["intershell local:setup", "intershell local:setup --skip-tests"];
 
 	static flags = {
-		"skip-vscode": Flags.boolean({
-			char: "v",
-			description: "Skip VS Code configuration sync",
-			default: false,
-		}),
 		"skip-tests": Flags.boolean({
 			char: "t",
 			description: "Skip running tests",
@@ -51,12 +42,6 @@ export default class LocalSetup extends Command {
 		// Step 5: Build all packages
 		this.log(colorify.blue("🏗️ Building all packages..."));
 		await $`bun run build`;
-
-		// Step 6: Sync VS Code configuration (unless skipped)
-		if (!flags["skip-vscode"]) {
-			this.log(colorify.blue("🎯 Syncing VS Code configuration..."));
-			await $`bun run local:vscode`;
-		}
 
 		this.log(colorify.green("✅ Local setup completed successfully!"));
 

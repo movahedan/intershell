@@ -63,9 +63,6 @@ export default class LocalCleanup extends Command {
 		this.log(colorify.yellow("📦 Cleaning node_modules in directories..."));
 		await $`rm -rf node_modules **/node_modules`.quiet().nothrow();
 
-		this.log(colorify.yellow("🎯 Cleaning VS Code configuration..."));
-		await $`rm -rf .vscode`.quiet().nothrow();
-
 		this.log(colorify.green("✅ Cleanup completed successfully!"));
 		this.log(colorify.cyan("\n💡 To start fresh, run:"));
 		this.log(colorify.cyan("  - intershell local:setup # For local development"));

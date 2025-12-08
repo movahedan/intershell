@@ -1,0 +1,35 @@
+{
+	"editor.formatOnSave": true,
+	"biome.lsp.trace.server": "verbose",
+	"biome.enabled": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit",
+		"source.organizeImports.biome": "explicit"
+	},
+	"editor.defaultFormatter": "biomejs.biome",
+	"[json]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"typescript.preferences.useAliasesForRenames": false,
+	"typescript.preferences.includePackageJsonAutoImports": "on",
+	"typescript.workspaceSymbols.scope": "allOpenProjects",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"files.watcherExclude": {
+		"**/dist": true
+	}
+}
