@@ -375,6 +375,87 @@ volumes:
 		await cleanupMocks();
 	});
 
+	it("should handle depends_on in object format (long syntax)", async () => {
+		await setupMocks();
+
+		const mockYamlParse = mock((input: string) => {
+			if (input.includes("service_healthy")) {
+				return {
+					version: "3.8",
+					services: {
+						app: {
+							image: "node:18",
+							ports: ["3000:3000"],
+							depends_on: {
+								postgres: {
+									condition: "service_healthy",
+								},
+								redis: {
+									condition: "service_started",
+								},
+							},
+						},
+						postgres: {
+							image: "postgres:13",
+							ports: ["5432:5432"],
+						},
+						redis: {
+							image: "redis:alpine",
+							ports: ["6379:6379"],
+						},
+					},
+					networks: {},
+					volumes: {},
+				};
+			}
+			return defaultYaml;
+		});
+
+		const mockFileText = mock(() => Promise.resolve("mock yaml content"));
+		setupBunMocks(mockYamlParse, mockFileText);
+
+		const { EntityCompose } = await import("./compose");
+		const entityCompose = new EntityCompose("docker-compose.yml");
+
+		// Test parsing with object format depends_on
+		const yamlInput = `
+version: "3.8"
+services:
+  app:
+    image: node:18
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+`;
+
+		const composeData = EntityCompose.parseDockerCompose(yamlInput);
+		expect(composeData.services.app.depends_on).toEqual(["postgres", "redis"]);
+
+		// Test getServices with object format
+		const services = await entityCompose.getServices();
+		const appService = services.find((s) => s.name === "app");
+		expect(appService?.dependencies).toEqual(["postgres", "redis"]);
+
+		// Test getServiceDependencies with object format
+		const dependencies = await entityCompose.getServiceDependencies();
+		expect(dependencies.dependencies.app).toEqual(["postgres", "redis"]);
+
+		// Cleanup mocks
+		await cleanupMocks();
+	});
+
 	it("should handle complex scenarios and error cases comprehensively", async () => {
 		await setupMocks();
 

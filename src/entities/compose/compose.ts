@@ -3,6 +3,7 @@ import { EntityPackage } from "../package";
 import type {
 	ComposeData,
 	ComposeValidationResult,
+	DependsOnCondition,
 	EntityAffectedService,
 	NetworkDefinition,
 	PortMapping,
@@ -90,7 +91,7 @@ export class EntityCompose {
 				ports,
 				environment,
 				volumes: service.volumes || [],
-				dependencies: service.depends_on || [],
+				dependencies: EntityCompose.normalizeDependsOn(service.depends_on),
 				health: {
 					name,
 					status: "unknown",
@@ -120,7 +121,7 @@ export class EntityCompose {
 		const dependencies: Record<string, string[]> = {};
 
 		for (const [name, service] of Object.entries(compose.services)) {
-			dependencies[name] = service.depends_on || [];
+			dependencies[name] = EntityCompose.normalizeDependsOn(service.depends_on);
 		}
 
 		return {
@@ -217,6 +218,20 @@ export class EntityCompose {
 					}
 					(service as Record<string, unknown>).environment = envObj;
 				}
+
+				// Normalize depends_on: support both array and object formats
+				if (service.depends_on) {
+					if (Array.isArray(service.depends_on)) {
+						// Already in array format, keep as is
+						(service as Record<string, unknown>).depends_on = service.depends_on;
+					} else if (typeof service.depends_on === "object" && service.depends_on !== null) {
+						// Object format: { postgres: { condition: "service_healthy" } }
+						// Convert to array of service names
+						(service as Record<string, unknown>).depends_on = Object.keys(
+							service.depends_on as Record<string, unknown>,
+						);
+					}
+				}
 			}
 		}
 
@@ -260,5 +275,22 @@ export class EntityCompose {
 		}
 
 		return env;
+	}
+
+	/**
+	 * Normalizes depends_on to an array of service names
+	 * Supports both array format: ["postgres"] and object format: { postgres: { condition: "service_healthy" } }
+	 */
+	private static normalizeDependsOn(
+		dependsOn?: string[] | Record<string, DependsOnCondition>,
+	): string[] {
+		if (!dependsOn) return [];
+
+		if (Array.isArray(dependsOn)) {
+			return dependsOn;
+		}
+
+		// Object format: extract service names
+		return Object.keys(dependsOn);
 	}
 }

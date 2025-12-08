@@ -6,13 +6,18 @@ export interface ComposeData {
 	readonly validation: ComposeValidationResult;
 }
 
+export interface DependsOnCondition {
+	readonly condition?: "service_started" | "service_healthy" | "service_completed_successfully";
+	readonly restart?: boolean;
+}
+
 export interface ServiceDefinition {
 	readonly image?: string;
 	readonly build?: string | BuildDefinition;
 	readonly ports?: string[];
 	readonly environment?: Record<string, string> | string[];
 	readonly volumes?: string[];
-	readonly depends_on?: string[];
+	readonly depends_on?: string[] | Record<string, DependsOnCondition>;
 	readonly networks?: string[];
 	readonly restart?: string;
 	readonly command?: string | string[];
