@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.3.8
+###### <a href="https://github.com/movahedan/intershell.git/commit/a1c8ff9883e0d5bb63d73f9083dfe557cd6d79a0"><img src="https://img.shields.io/badge/refactor-(root)-007ACC?style=flat" alt="refactor" style="vertical-align: middle;" /></a> remove vscode settings sync from devcontainer ([a1c8ff9](https://github.com/movahedan/intershell.git/commit/a1c8ff9883e0d5bb63d73f9083dfe557cd6d79a0)) by **Soheil Movahedan**
 ## v0.3.7
 ###### <a href="https://github.com/movahedan/intershell.git/commit/f3baaedc63589efd3e51ec5ee0b53a291ef22ba3"><img src="https://img.shields.io/badge/fix-(@repo/intershell)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> support docker compose depends_on object format ([f3baaed](https://github.com/movahedan/intershell.git/commit/f3baaedc63589efd3e51ec5ee0b53a291ef22ba3)) by **Soheil Movahedan**
 ## v0.3.6
