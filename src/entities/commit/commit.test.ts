@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import type { $ } from "bun";
+import type { IConfig } from "../intershell-config/intershell-config.types";
 import type { ParsedCommitData } from "./commit.types";
 
 const { EntityCommit } = await import("./commit");
@@ -365,6 +366,105 @@ describe("EntityCommit", () => {
 			const errors = new EntityCommit().validateCommitMessage(message);
 
 			expect(errors).toEqual(["commit message cannot be empty"]);
+		});
+
+		it("should skip type validation when type.list is null", () => {
+			const config = {
+				commit: {
+					conventional: {
+						type: {
+							list: null,
+						},
+						scopes: {
+							list: ["root"],
+						},
+					},
+				},
+			} as IConfig;
+
+			// Should not error on invalid type when list is null
+			const message = "invalid-type(root): add new feature";
+			const errors = new EntityCommit(config).validateCommitMessage(message);
+
+			// Should not have type validation error
+			expect(errors.every((error) => !error.includes("invalid type"))).toBe(true);
+		});
+
+		it("should skip scope validation when scopes.list is null", () => {
+			const config = {
+				commit: {
+					conventional: {
+						type: {
+							list: [
+								{
+									type: "feat",
+									label: "Features",
+									description: "A new feature",
+									category: "features" as const,
+									emoji: "🚀",
+									badgeColor: "00D4AA",
+									breakingAllowed: true,
+								},
+							],
+						},
+						scopes: {
+							list: null,
+						},
+					},
+				},
+			} as IConfig;
+
+			// Should not error on invalid scope when list is null
+			const message = "feat(invalid-scope): add new feature";
+			const errors = new EntityCommit(config).validateCommitMessage(message);
+
+			// Should not have scope validation error
+			expect(errors.every((error) => !error.includes("invalid scope"))).toBe(true);
+		});
+
+		it("should skip both type and scope validation when both are null", () => {
+			const config = {
+				commit: {
+					conventional: {
+						type: {
+							list: null,
+						},
+						scopes: {
+							list: null,
+						},
+					},
+				},
+			} as IConfig;
+
+			// Should not error on invalid type or scope when both lists are null
+			const message = "invalid-type(invalid-scope): add new feature";
+			const errors = new EntityCommit(config).validateCommitMessage(message);
+
+			// Should not have type or scope validation errors
+			expect(errors.every((error) => !error.includes("invalid type"))).toBe(true);
+			expect(errors.every((error) => !error.includes("invalid scope"))).toBe(true);
+		});
+
+		it("should skip breaking change validation when type.list is null", () => {
+			const config = {
+				commit: {
+					conventional: {
+						type: {
+							list: null,
+						},
+						scopes: {
+							list: ["root"],
+						},
+					},
+				},
+			} as IConfig;
+
+			// Should not error on breaking change validation when type.list is null
+			const message = "docs(root)!: breaking change";
+			const errors = new EntityCommit(config).validateCommitMessage(message);
+
+			// Should not have breaking change type validation error
+			expect(errors.every((error) => !error.includes("breaking change is not allowed"))).toBe(true);
 		});
 	});
 

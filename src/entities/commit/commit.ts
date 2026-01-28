@@ -63,16 +63,21 @@ export class EntityCommit {
 			}
 		} else {
 			// Validate conventional commit
-			// Type validation
-			if (commitConfig.conventional.type?.list && commitConfig.conventional.type.list.length > 0) {
+			// Type validation - skip if list is null
+			if (
+				commitConfig.conventional.type?.list !== null &&
+				commitConfig.conventional.type?.list &&
+				commitConfig.conventional.type.list.length > 0
+			) {
 				const validTypes = commitConfig.conventional.type.list.map((t) => t.type);
 				if (!validTypes.includes(match.type)) {
 					errors.push(`type: invalid type "${match.type}". valid types: ${validTypes.join(", ")}`);
 				}
 			}
 
-			// Scope validation
+			// Scope validation - skip if list is null
 			if (
+				commitConfig.conventional.scopes?.list !== null &&
 				commitConfig.conventional.scopes?.list &&
 				commitConfig.conventional.scopes.list.length > 0
 			) {
@@ -106,6 +111,7 @@ export class EntityCommit {
 
 				if (
 					commitConfig.conventional.description.shouldNotStartWithType &&
+					commitConfig.conventional.type?.list !== null &&
 					commitConfig.conventional.type?.list
 				) {
 					const firstWord = desc.split(" ")[0].toLowerCase();
@@ -131,8 +137,12 @@ export class EntityCommit {
 				}
 			}
 
-			// Breaking change validation
-			if (match.isBreaking && commitConfig.conventional.type?.list) {
+			// Breaking change validation - skip if list is null
+			if (
+				match.isBreaking &&
+				commitConfig.conventional.type?.list !== null &&
+				commitConfig.conventional.type?.list
+			) {
 				const breakingAllowedTypes = commitConfig.conventional.type.list
 					.filter((t) => t.breakingAllowed)
 					.map((t) => t.type);

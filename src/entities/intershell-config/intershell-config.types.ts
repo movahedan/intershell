@@ -12,11 +12,11 @@ type Validator = (commit: unknown) => true | string;
 export interface CommitConfig {
 	conventional: {
 		type?: {
-			list?: CommitTypeDefinition[];
+			list?: CommitTypeDefinition[] | null;
 			validator?: Validator;
 		};
 		scopes?: {
-			list?: string[];
+			list?: string[] | null;
 			validator?: Validator;
 		};
 		description?: {
@@ -66,7 +66,7 @@ export type StagedConfig = {
 
 interface BranchConfig {
 	readonly defaultBranch: string;
-	readonly prefixes: string[];
+	readonly prefixes: string[] | null;
 	readonly name: {
 		readonly minLength: number;
 		readonly maxLength: number;

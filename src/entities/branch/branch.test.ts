@@ -53,7 +53,7 @@ describe.skip("EntityBranch", () => {
 		branch = new EntityBranch();
 	});
 
-	describe("static parseByName", () => {
+		describe("static parseByName", () => {
 		const parseTestCases = [
 			{
 				name: "should parse branch name with prefix and name",
@@ -108,6 +108,22 @@ describe.skip("EntityBranch", () => {
 				expect(result).toEqual(expected);
 			});
 		});
+
+		it("should handle null prefixes gracefully", () => {
+			mockEntitiesConfig.getConfig.mockReturnValue({
+				branch: {
+					...mockConfig,
+					prefixes: null,
+				},
+			} as IConfig);
+			const testBranch = new EntityBranch();
+
+			// Should return undefined prefix when prefixes is null
+			const result = testBranch.parseByName("any-branch-name");
+			expect(result.prefix).toBeUndefined();
+			expect(result.name).toBe("any-branch-name");
+			expect(result.fullName).toBe("any-branch-name");
+		});
 	});
 
 	describe("getCurrentBranch", () => {
@@ -155,6 +171,20 @@ describe.skip("EntityBranch", () => {
 							branch: {
 								...mockConfig,
 								prefixes: [] as string[],
+							},
+						} as IConfig);
+						return new EntityBranch();
+					},
+					expected: true as const,
+				},
+				{
+					name: "should validate branch without prefixes when prefixes is null",
+					input: "any-branch-name",
+					setup: () => {
+						mockEntitiesConfig.getConfig.mockReturnValue({
+							branch: {
+								...mockConfig,
+								prefixes: null,
 							},
 						} as IConfig);
 						return new EntityBranch();
@@ -290,6 +320,37 @@ describe.skip("EntityBranch", () => {
 					const result = branch.validate(input);
 					expect(result).toBe(expected);
 				});
+			});
+		});
+
+		describe("null prefixes", () => {
+			it("should skip prefix validation when prefixes is null", () => {
+				mockEntitiesConfig.getConfig.mockReturnValue({
+					branch: {
+						...mockConfig,
+						prefixes: null,
+					},
+				} as IConfig);
+				const testBranch = new EntityBranch();
+
+				// Should pass validation even without prefix
+				expect(testBranch.validate("any-branch-name")).toBe(true);
+				expect(testBranch.validate("user-auth")).toBe(true);
+				expect(testBranch.validate("feature/user-auth")).toBe(true);
+			});
+
+			it("should still validate other rules when prefixes is null", () => {
+				mockEntitiesConfig.getConfig.mockReturnValue({
+					branch: {
+						...mockConfig,
+						prefixes: null,
+					},
+				} as IConfig);
+				const testBranch = new EntityBranch();
+
+				// Should still fail on other validation rules
+				expect(testBranch.validate("")).toBe("branch name is empty");
+				expect(testBranch.validate("ab")).toBe("branch name should be at least 3 characters long");
 			});
 		});
 	});

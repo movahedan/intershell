@@ -19,9 +19,9 @@ class Config {
 	}
 
 	private mergeConfig(config: CustomConfigJson): IConfig {
-		// Load packages for commit scopes if not provided
+		// Load packages for commit scopes if not provided and not explicitly null
 		let commitScopes: string[] = [];
-		if (!config.commit?.conventional?.scopes?.list) {
+		if (config.commit?.conventional?.scopes?.list === undefined) {
 			try {
 				// This is a synchronous operation that reads from the filesystem
 				// We'll populate it with available packages
@@ -42,11 +42,20 @@ class Config {
 					type: {
 						...defaultConfig.commit.conventional.type,
 						...config.commit?.conventional?.type,
+						// Preserve null if explicitly set
+						list:
+							config.commit?.conventional?.type?.list !== undefined
+								? config.commit.conventional.type.list
+								: defaultConfig.commit.conventional.type.list,
 					},
 					scopes: {
 						...defaultConfig.commit.conventional.scopes,
 						...config.commit?.conventional?.scopes,
-						list: config.commit?.conventional?.scopes?.list || commitScopes,
+						// Preserve null if explicitly set, otherwise use default or computed scopes
+						list:
+							config.commit?.conventional?.scopes?.list !== undefined
+								? config.commit.conventional.scopes.list
+								: commitScopes,
 					},
 					description: {
 						...defaultConfig.commit.conventional.description,
@@ -62,6 +71,11 @@ class Config {
 			branch: {
 				...defaultConfig.branch,
 				...config.branch,
+				// Preserve null if explicitly set
+				prefixes:
+					config.branch?.prefixes !== undefined
+						? config.branch.prefixes
+						: defaultConfig.branch.prefixes,
 			} as IConfig["branch"],
 			package: {
 				...defaultConfig.package,

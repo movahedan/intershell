@@ -14,11 +14,14 @@ export class EntityBranch {
 		let foundPrefixIndex = -1;
 		let foundPrefix = "";
 
-		for (let i = 0; i < parts.length; i++) {
-			if (validPrefixes.includes(parts[i])) {
-				foundPrefixIndex = i;
-				foundPrefix = parts[i];
-				break;
+		// Only check for prefixes if they are not null
+		if (validPrefixes !== null) {
+			for (let i = 0; i < parts.length; i++) {
+				if (validPrefixes.includes(parts[i])) {
+					foundPrefixIndex = i;
+					foundPrefix = parts[i];
+					break;
+				}
 			}
 		}
 
@@ -67,6 +70,11 @@ export class EntityBranch {
 			return "branch name should not start or end with separators";
 
 		if (branch.fullName === config.defaultBranch) {
+			return true;
+		}
+
+		// Skip prefix validation if prefixes is null
+		if (config.prefixes === null) {
 			return true;
 		}
 
