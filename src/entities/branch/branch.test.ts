@@ -9,7 +9,7 @@ const mockEntitiesConfig = {
 	getConfig: mock(() => ({
 		branch: {
 			defaultBranch: "main",
-			prefixes: ["feature", "bugfix", "hotfix"],
+			prefixes: ["feature", "bugfix", "hotfix"] as string[] | null,
 			name: {
 				minLength: 3,
 				maxLength: 50,
@@ -35,7 +35,7 @@ describe.skip("EntityBranch", () => {
 	beforeEach(() => {
 		mockConfig = {
 			defaultBranch: "main",
-			prefixes: ["feature", "bugfix", "hotfix"],
+			prefixes: ["feature", "bugfix", "hotfix"] as string[] | null,
 			name: {
 				minLength: 3,
 				maxLength: 50,
@@ -48,12 +48,12 @@ describe.skip("EntityBranch", () => {
 		// Set up the mock config
 		mockEntitiesConfig.getConfig.mockReturnValue({
 			branch: mockConfig,
-		});
+		} as IConfig);
 
 		branch = new EntityBranch();
 	});
 
-		describe("static parseByName", () => {
+	describe("static parseByName", () => {
 		const parseTestCases = [
 			{
 				name: "should parse branch name with prefix and name",

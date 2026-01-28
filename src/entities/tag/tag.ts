@@ -170,11 +170,21 @@ export const EntityTag = {
 		if (from) {
 			// Check if it's a tag, commit hash, or branch
 			const result = await entitiesShell.gitRevParse(from);
-			if (result.exitCode !== 0) {
-				throw new Error(`Invalid reference: ${from}. Not found as tag, branch, or commit.`);
+			if (result.exitCode === 0) {
+				return result.text().trim();
 			}
 
-			return result.text().trim();
+			// If the reference looks like a parent reference (HEAD~1, HEAD^, etc.)
+			// and it failed, fall back to first commit (happens on initial commit)
+			const isParentRef = /^HEAD[~^]\d*$/.test(from) || /^[a-f0-9]+[~^]\d*$/i.test(from);
+			if (isParentRef) {
+				const firstCommitResult = await entitiesShell.gitFirstCommit();
+				if (firstCommitResult.exitCode === 0) {
+					return firstCommitResult.text().trim();
+				}
+			}
+
+			throw new Error(`Invalid reference: ${from}. Not found as tag, branch, or commit.`);
 		}
 
 		// Return first commit if no reference provided
