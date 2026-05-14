@@ -116,6 +116,8 @@ bun run version:publish -- --dry-run # npm publish --dry-run
 
 The script lives at `scripts/version/publish.ts` and is exposed as `version:publish` so it stays grouped with the other version scripts and does not use the script name `publish` (npm treats that as a lifecycle hook after `npm publish`).
 
+After a real `npm publish`, it runs [`gh release create`](https://cli.github.com/manual/gh_release_create) (or `gh release edit` if the release already exists). Install the [GitHub CLI](https://cli.github.com/) and run `gh auth login`. The version tag must exist on the remote (`--verify-tag`). Use `--no-github` to skip. Release notes come from the package `CHANGELOG.md` when it is non-empty; otherwise GitHub auto-generates notes on create only.
+
 ## Requirements
 
 - **Bun** >= 1.0.0 (recommended runtime)

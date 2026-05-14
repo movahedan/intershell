@@ -13,7 +13,7 @@ InterShell’s main value is the **entity layer**: typed helpers for commits, pa
 - `bun test` — Bun test runner
 - `bun run lint` — Biome (report only)
 - `bun run check` — `lint --fix`, then typecheck, test, and build
-- `bun run version:publish` — build and `npm publish` the **current** `package.json` version (`scripts/version/publish.ts`; expects a matching local git tag unless `--no-tag-check`; not named `publish` to avoid npm `publish` lifecycle hook)
+- `bun run version:publish` — build and `npm publish` the **current** `package.json` version (`scripts/version/publish.ts`; not named `publish` to avoid the npm `publish` lifecycle hook; optional `--no-tag-check`). After a real publish, runs `gh release create` or `gh release edit` unless `--no-github`; create uses `--verify-tag` (tag must exist on the remote).
 
 ## Source layout
 

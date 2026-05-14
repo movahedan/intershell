@@ -10,6 +10,7 @@ interface PublishFlags {
 	readonly skipValidation: boolean;
 	readonly noTagCheck: boolean;
 	readonly npmTag: string | undefined;
+	readonly noGithub: boolean;
 }
 
 function printHelp(): void {
@@ -29,6 +30,7 @@ Options:
       --skip-validation  Skip EntityPackage.validateAllPackages()
       --no-tag-check     Do not require a local git tag for the current version
       --tag <dist-tag>   npm dist-tag (passed to npm publish --tag)
+      --no-github        Skip GitHub release (after a real npm publish, runs gh by default)
   -h, --help             Show this help
 `);
 }
@@ -40,6 +42,7 @@ function parsePublishArgv(argv: string[]): PublishFlags {
 	let skipValidation = false;
 	let noTagCheck = false;
 	let npmTag: string | undefined;
+	let noGithub = false;
 
 	for (let i = 0; i < argv.length; i++) {
 		const a = argv[i];
@@ -62,6 +65,10 @@ function parsePublishArgv(argv: string[]): PublishFlags {
 		}
 		if (a === "--no-tag-check") {
 			noTagCheck = true;
+			continue;
+		}
+		if (a === "--no-github") {
+			noGithub = true;
 			continue;
 		}
 		if (a === "-p" || a === "--package") {
@@ -99,12 +106,90 @@ function parsePublishArgv(argv: string[]): PublishFlags {
 		skipValidation,
 		noTagCheck,
 		npmTag: resolvedNpmTag,
+		noGithub,
 	};
 }
 
 function die(message: string): never {
 	console.error(message);
 	process.exit(1);
+}
+
+async function resolveGitRoot(): Promise<string | null> {
+	const proc = Bun.spawn(["git", "rev-parse", "--show-toplevel"], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	const code = await proc.exited;
+	if (code !== 0) {
+		return null;
+	}
+	const out = await new Response(proc.stdout).text();
+	const root = out.trim();
+	return root.length > 0 ? root : null;
+}
+
+async function ghCliAvailable(): Promise<boolean> {
+	const proc = Bun.spawn(["gh", "--version"], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	const code = await proc.exited;
+	return code === 0;
+}
+
+async function githubReleaseExists(tag: string, gitRoot: string): Promise<boolean> {
+	const proc = Bun.spawn(["gh", "release", "view", tag], {
+		cwd: gitRoot,
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	const code = await proc.exited;
+	return code === 0;
+}
+
+/**
+ * After npm publish: create a GitHub release for the version tag, or update notes if it exists.
+ */
+async function syncGithubRelease(options: {
+	readonly gitRoot: string;
+	readonly tag: string;
+	readonly title: string;
+	readonly changelogAbsolutePath: string;
+	readonly changelogHasBody: boolean;
+}): Promise<void> {
+	const { gitRoot, tag, title, changelogAbsolutePath, changelogHasBody } = options;
+	const exists = await githubReleaseExists(tag, gitRoot);
+
+	let args: string[];
+	if (exists) {
+		args = ["gh", "release", "edit", tag, "--title", title];
+		if (changelogHasBody) {
+			args.push("--notes-file", changelogAbsolutePath);
+		}
+	} else {
+		args = ["gh", "release", "create", tag, "--verify-tag", "--title", title];
+		if (changelogHasBody) {
+			args.push("--notes-file", changelogAbsolutePath);
+		} else {
+			args.push("--generate-notes");
+		}
+	}
+
+	console.log(
+		exists
+			? colorify.green(`🐙 Updating GitHub release ${tag}...`)
+			: colorify.green(`🐙 Creating GitHub release ${tag}...`),
+	);
+	const proc = Bun.spawn(args, {
+		cwd: gitRoot,
+		stdio: ["inherit", "inherit", "inherit"],
+	});
+	const exitCode = await proc.exited;
+	if (exitCode !== 0) {
+		die(`gh ${exists ? "release edit" : "release create"} exited with code ${exitCode}`);
+	}
+	console.log(colorify.green("✅ GitHub release synced"));
 }
 
 async function main(): Promise<void> {
@@ -188,6 +273,37 @@ async function main(): Promise<void> {
 	const exitCode = await publishProc.exited;
 	if (exitCode !== 0) {
 		die(`npm publish exited with code ${exitCode}`);
+	}
+
+	if (!flags.dryRun && !flags.noGithub) {
+		const gitRoot = await resolveGitRoot();
+		if (!gitRoot) {
+			console.log(colorify.yellow("⚠️ Not a git repo; skipping GitHub release"));
+		} else if (!(await ghCliAvailable())) {
+			console.log(
+				colorify.yellow(
+					"⚠️ GitHub CLI (gh) not found; skipping GitHub release. Install gh and re-run, or use --no-github.",
+				),
+			);
+		} else {
+			const gitTag = await packageTags.createPackageTag(version);
+			const changelogRel = packageInstance.getChangelogPath();
+			const changelogAbsolutePath = path.resolve(gitRoot, changelogRel);
+			const changelogBody = packageInstance.readChangelog().trim();
+			const changelogHasBody = changelogBody.length > 0;
+			const releaseTitle = `${pkgJson.name}@${version}`;
+			await syncGithubRelease({
+				gitRoot,
+				tag: gitTag,
+				title: releaseTitle,
+				changelogAbsolutePath,
+				changelogHasBody,
+			});
+		}
+	} else if (flags.dryRun && !flags.noGithub) {
+		console.log(colorify.yellow("⚠️ Skipping GitHub release (npm publish was --dry-run)"));
+	} else if (flags.noGithub) {
+		console.log(colorify.yellow("⚠️ Skipping GitHub release (--no-github)"));
 	}
 
 	console.log(colorify.green("✅ Done"));
