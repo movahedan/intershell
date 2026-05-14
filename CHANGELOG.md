@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.6.0
+###### <a href="https://github.com/movahedan/intershell.git/commit/185ede1cef4ad2939683b9a60b9cb54f0e9b8078"><img src="https://img.shields.io/badge/feat-(root)-00D4AA?style=flat" alt="feat" style="vertical-align: middle;" /></a> sync GitHub release after npm publish ([185ede1](https://github.com/movahedan/intershell.git/commit/185ede1cef4ad2939683b9a60b9cb54f0e9b8078)) by **Soheil Movahedan**
 ## v0.5.0
 ###### <a href="https://github.com/movahedan/intershell.git/commit/110137f43117d2d4cea3779f55ce043bb9a15f4e"><img src="https://img.shields.io/badge/feat-(root)-00D4AA?style=flat" alt="feat" style="vertical-align: middle;" /></a> add version:publish for npm releases ([110137f](https://github.com/movahedan/intershell.git/commit/110137f43117d2d4cea3779f55ce043bb9a15f4e)) by **Soheil Movahedan**
 ## v0.4.0
