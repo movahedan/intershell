@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.4.0
+###### <a href="https://github.com/movahedan/intershell.git/commit/1888a8d74c688735465512cf7a81d04bfe2cf845"><img src="https://img.shields.io/badge/feat-(noscope)-00D4AA?style=flat" alt="feat" style="vertical-align: middle;" /></a> keep entities and remove the rest of the project ([1888a8d](https://github.com/movahedan/intershell.git/commit/1888a8d74c688735465512cf7a81d04bfe2cf845)) by **Soheil Movahedan**
 ## v0.3.9
 ###### <a href="https://github.com/movahedan/intershell.git/commit/2855f921427a4bace6b26d0aaa5a6a7a200c84f1"><img src="https://img.shields.io/badge/test-(noscope)-10B981?style=flat" alt="test" style="vertical-align: middle;" /></a> add tests for null config values disabling validation ([2855f92](https://github.com/movahedan/intershell.git/commit/2855f921427a4bace6b26d0aaa5a6a7a200c84f1)) by **Soheil Movahedan**
 ## v0.3.8

@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "intershell",
-	"version": "0.3.9",
+	"version": "0.4.0",
 	"description": "Bun-first TypeScript library of monorepo entities (commits, packages, versioning, tags, affected, compose, config).",
 	"license": "MIT",
 	"author": "Soheil Movahedan <soheil.movahedan@gmail.com>",
