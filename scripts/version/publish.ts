@@ -1,6 +1,8 @@
+import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { $ } from "bun";
-import { EntityPackage, EntityPackageTags } from "../../src/index";
+import { DefaultChangelogTemplate, EntityPackage, EntityPackageTags } from "../../src/index";
 import { colorify } from "../colorify";
 
 interface PublishFlags {
@@ -115,6 +117,22 @@ function die(message: string): never {
 	process.exit(1);
 }
 
+/** Parsed version section from CHANGELOG.md (ChangelogTemplate.parseVersions via DefaultChangelogTemplate). */
+function getReleaseNotesForVersion(packageInstance: EntityPackage, version: string): string | null {
+	const prefix = packageInstance.getTagSeriesName();
+	if (!prefix) {
+		return null;
+	}
+	const template = new DefaultChangelogTemplate(packageInstance.getName(), prefix);
+	const byVersion = template.parseVersions(packageInstance.readChangelog());
+	const block = byVersion.get(version);
+	if (typeof block !== "string") {
+		return null;
+	}
+	const trimmed = block.trim();
+	return trimmed.length > 0 ? trimmed : null;
+}
+
 async function resolveGitRoot(): Promise<string | null> {
 	const proc = Bun.spawn(["git", "rev-parse", "--show-toplevel"], {
 		stdout: "pipe",
@@ -155,22 +173,22 @@ async function syncGithubRelease(options: {
 	readonly gitRoot: string;
 	readonly tag: string;
 	readonly title: string;
-	readonly changelogAbsolutePath: string;
-	readonly changelogHasBody: boolean;
+	readonly notesFilePath: string | null;
 }): Promise<void> {
-	const { gitRoot, tag, title, changelogAbsolutePath, changelogHasBody } = options;
+	const { gitRoot, tag, title, notesFilePath } = options;
 	const exists = await githubReleaseExists(tag, gitRoot);
+	const hasNotesFile = notesFilePath !== null;
 
 	let args: string[];
 	if (exists) {
 		args = ["gh", "release", "edit", tag, "--title", title];
-		if (changelogHasBody) {
-			args.push("--notes-file", changelogAbsolutePath);
+		if (hasNotesFile) {
+			args.push("--notes-file", notesFilePath);
 		}
 	} else {
 		args = ["gh", "release", "create", tag, "--verify-tag", "--title", title];
-		if (changelogHasBody) {
-			args.push("--notes-file", changelogAbsolutePath);
+		if (hasNotesFile) {
+			args.push("--notes-file", notesFilePath);
 		} else {
 			args.push("--generate-notes");
 		}
@@ -287,18 +305,36 @@ async function main(): Promise<void> {
 			);
 		} else {
 			const gitTag = await packageTags.createPackageTag(version);
-			const changelogRel = packageInstance.getChangelogPath();
-			const changelogAbsolutePath = path.resolve(gitRoot, changelogRel);
-			const changelogBody = packageInstance.readChangelog().trim();
-			const changelogHasBody = changelogBody.length > 0;
+			const fullChangelog = packageInstance.readChangelog();
+			const section = getReleaseNotesForVersion(packageInstance, version);
 			const releaseTitle = `${pkgJson.name}@${version}`;
-			await syncGithubRelease({
-				gitRoot,
-				tag: gitTag,
-				title: releaseTitle,
-				changelogAbsolutePath,
-				changelogHasBody,
-			});
+
+			let notesFilePath: string | null = null;
+			let tmpDir: string | null = null;
+			if (section !== null && section.trim().length > 0) {
+				tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "intershell-gh-release-"));
+				notesFilePath = path.join(tmpDir, "NOTES.md");
+				await Bun.write(notesFilePath, section);
+			} else if (fullChangelog.trim().length > 0) {
+				console.log(
+					colorify.yellow(
+						`⚠️ No CHANGELOG section parsed for version ${version} (ChangelogTemplate.parseVersions); GitHub will use auto-generated notes on create or leave notes unchanged on edit.`,
+					),
+				);
+			}
+
+			try {
+				await syncGithubRelease({
+					gitRoot,
+					tag: gitTag,
+					title: releaseTitle,
+					notesFilePath,
+				});
+			} finally {
+				if (tmpDir !== null) {
+					await fs.rm(tmpDir, { recursive: true, force: true });
+				}
+			}
 		}
 	} else if (flags.dryRun && !flags.noGithub) {
 		console.log(colorify.yellow("⚠️ Skipping GitHub release (npm publish was --dry-run)"));
