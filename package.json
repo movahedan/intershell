@@ -35,12 +35,12 @@
 		"typecheck": "tsc --noEmit",
 		"build": "rm -rf dist && tsc -p tsconfig.build.json",
 		"lint": "biome check .",
-		"lint:fix": "biome check . --write",
 		"test": "bun test",
-		"check": "bun run lint:fix && bun run typecheck && bun run test && bun run build",
+		"check": "bun run lint --fix && bun run typecheck && bun run test && bun run build",
 		"commit:check": "bun run ./src/commit-check.ts",
 		"version:prepare": "bun run ./scripts/version/prepare.ts",
-		"version:apply": "bun run ./scripts/version/apply.ts"
+		"version:apply": "bun run ./scripts/version/apply.ts",
+		"version:publish": "bun run ./scripts/version/publish.ts"
 	},
 	"keywords": [
 		"monorepo",

@@ -12,8 +12,8 @@ InterShell’s main value is the **entity layer**: typed helpers for commits, pa
 - `bun run typecheck` — `tsc --noEmit`
 - `bun test` — Bun test runner
 - `bun run lint` — Biome (report only)
-- `bun run lint:fix` — Biome with `--write` (apply safe fixes)
-- `bun run check` — `lint:fix`, then typecheck, test, and build
+- `bun run check` — `lint --fix`, then typecheck, test, and build
+- `bun run version:publish` — build and `npm publish` the **current** `package.json` version (`scripts/version/publish.ts`; expects a matching local git tag unless `--no-tag-check`; not named `publish` to avoid npm `publish` lifecycle hook)
 
 ## Source layout
 

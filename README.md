@@ -101,12 +101,20 @@ When working on this repository:
 
 ```bash
 bun run lint         # Biome (report only)
-bun run lint:fix     # Biome with safe fixes written to disk
 bun run typecheck    # TypeScript
 bun test
 bun run build
-bun run check   # lint:fix, then typecheck, test, and build
+bun run check   # lint --fix, then typecheck, test, and build
 ```
+
+Release to npm after `version:prepare` and `version:apply` (so `package.json` and the git tag match):
+
+```bash
+bun run version:publish              # validate, build, npm publish
+bun run version:publish -- --dry-run # npm publish --dry-run
+```
+
+The script lives at `scripts/version/publish.ts` and is exposed as `version:publish` so it stays grouped with the other version scripts and does not use the script name `publish` (npm treats that as a lifecycle hook after `npm publish`).
 
 ## Requirements
 
