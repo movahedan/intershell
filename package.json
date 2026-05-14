@@ -2,7 +2,7 @@
 	"private": false,
 	"name": "intershell",
 	"version": "0.3.9",
-	"description": "Bun‑first CLI toolkit for developer workflow automation in monorepos and monoliths.",
+	"description": "Bun-first TypeScript library of monorepo entities (commits, packages, versioning, tags, affected, compose, config).",
 	"license": "MIT",
 	"author": "Soheil Movahedan <soheil.movahedan@gmail.com>",
 	"repository": {
@@ -21,64 +21,46 @@
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"bin": {
-		"intershell": "./dist/index.js"
-	},
 	"exports": {
-		"./core": "./dist/core/index.js",
-		".": "./dist/index.js",
-		"./entities": "./dist/entities/index.js"
-	},
-	"oclif": {
-		"bin": "intershell",
-		"dirname": "intershell",
-		"commands": "./dist/commands",
-		"plugins": [
-			"@oclif/plugin-help",
-			"@oclif/plugin-version"
-		]
+		".": "./dist/index.js"
 	},
 	"files": [
 		"dist",
 		"src",
-		"README.md"
+		"README.md",
+		"docs"
 	],
 	"scripts": {
-		"check:types": "tsc --noEmit",
-		"build": "rm -rf dist && tsc -p tsconfig.build.json && echo '#!/usr/bin/env bun' > dist/index.js.tmp && tail -n +2 dist/index.js >> dist/index.js.tmp && mv dist/index.js.tmp dist/index.js",
-		"check": "biome check .",
-		"check:fix": "biome check . --write",
+		"postinstall": "bun run lefthook install",
+		"typecheck": "tsc --noEmit",
+		"build": "rm -rf dist && tsc -p tsconfig.build.json",
+		"lint": "biome check .",
+		"lint:fix": "biome check . --write",
 		"test": "bun test",
-		"check:quick": "bun run check:fix && bun run check:types && bun run test && bun run build",
-		"commit:check": "bun run ./src/commands/commit-check.ts"
-	},
-	"dependencies": {
-		"@oclif/core": "4.5.4",
-		"@oclif/dev-cli": "1.26.10",
-		"@oclif/plugin-help": "6.2.33",
-		"@oclif/plugin-version": "2.2.33"
-	},
-	"peerDependencies": {
-		"@biomejs/biome": "2.1.2",
-		"lefthook": "1.12.4",
-		"turbo": "2.5.8",
-		"typescript": "5.9.3"
+		"check": "bun run lint:fix && bun run typecheck && bun run test && bun run build",
+		"commit:check": "bun run ./src/commit-check.ts",
+		"version:prepare": "bun run ./scripts/version/prepare.ts",
+		"version:apply": "bun run ./scripts/version/apply.ts"
 	},
 	"keywords": [
-		"cli",
-		"interactive",
-		"terminal",
-		"framework",
-		"pages",
-		"navigation",
-		"state-management",
-		"command-parser",
-		"plugin-system",
+		"monorepo",
+		"turborepo",
 		"entities",
-		"commit-management",
-		"branch-validation"
+		"conventional-commits",
+		"changelog",
+		"semantic-versioning",
+		"git-tags",
+		"typescript",
+		"bun"
 	],
 	"devDependencies": {
-		"bun-types": "^1.3.7"
+		"@biomejs/biome": "2.1.2",
+		"@types/bun": "^1.3.14",
+		"bun": "^1.3.14",
+		"lefthook": "1.12.4",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"turbo": "2.5.8"
 	}
 }

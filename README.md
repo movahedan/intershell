@@ -1,152 +1,72 @@
-# 🚀 InterShell - CLI Toolkit for Developer Workflow Automation
+# InterShell — monorepo entities
 
-> **Bun-first CLI toolkit for developer workflow automation in monorepos and monoliths**
+> **Typed building blocks for commits, packages, versioning, tags, and CI-friendly workflows — Bun-first, TypeScript-first.**
 
-InterShell is a modern, type-safe CLI toolkit built with Bun and TypeScript that automates common developer workflows in monorepos and monoliths. It provides commands for version management, commit validation, CI/CD integration, and development environment management.
+InterShell is a **library of entities**: small, focused modules you import from your own scripts, CLIs, or CI jobs. Each entity wraps a slice of monorepo work (git, Turbo, `package.json`, changelogs, compose, and more) behind a consistent API.
 
-## ✨ Features
+## Table of contents
 
-- **📦 Version Management** - Automate semantic versioning with changelog generation
-- **✅ Commit Validation** - Enforce conventional commit standards with branch validation
-- **🔄 CI/CD Integration** - GitHub Actions integration for affected packages and service ports
-- **🐳 Docker Compose Support** - Manage development environments and service health checks
-- **📊 Package Management** - Analyze dependencies and affected packages in monorepos
-- **🏷️ Git Operations** - Tag management, branch validation, and commit parsing
-- **🔧 Type Safety** - Full TypeScript support with strict type checking
-- **⚡ Bun-First** - Built for Bun runtime with zero Node.js dependencies
+- [Overview](#overview)
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Entities](#entities)
+- [Configuration](#configuration)
+- [Architecture](#architecture)
+- [Development](#development)
+- [Requirements](#requirements)
+- [License](#license)
 
-## 📦 Installation
+## Overview
 
-```bash
-# Using Bun
-bun add -g intershell
+- **Entity-first** — `EntityCommit`, `EntityPackage`, `EntityAffected`, and the rest are the product; compose them in your tooling.
+- **Type-safe** — strict TypeScript, explicit types exported from each module.
+- **Bun-oriented** — developed and tested on Bun; entities use Bun where it helps (for example shell helpers).
 
-# Using npm
-npm install -g intershell
-```
-
-## 🚀 Quick Start
-
-### Version Management
-
-Prepare and apply version changes with automatic changelog generation:
+## Install
 
 ```bash
-# Prepare version bump (creates changelog, updates package.json)
-intershell version:prepare
-
-# Apply version changes (commits and tags)
-intershell version:apply
-
-# CI-friendly version preparation
-intershell version:ci
+bun add intershell
 ```
-
-### Commit Validation
-
-Validate commits follow conventional commit standards:
 
 ```bash
-# Check if commit message is valid
-intershell commit-check
-
-# Interactive commit with validation
-intershell commit "feat(package): add new feature"
+npm install intershell
 ```
 
-### CI/CD Integration
+## Quick start
 
-Integrate with GitHub Actions for affected package detection:
+```typescript
+import { EntityCommit, EntityPackage, EntityAffected } from "intershell";
 
-```bash
-# Attach affected packages to GitHub Actions output
-intershell ci:attach-affected -o affected-services -m turbo
+const { stagedFiles } = await EntityCommit.getStagedFiles();
+const errors = await EntityCommit.validateStagedFiles(stagedFiles);
 
-# Attach Docker service ports for affected services
-intershell ci:attach-service-ports -o service-ports
-
-# Run GitHub Actions locally
-intershell ci:act --event pull_request --workflow .github/workflows/Check.yml
+const packages = await EntityPackage.getAllPackages();
+const affected = await EntityAffected.getAffectedPackages();
 ```
 
-### Development Environment
+Import names follow the `Entity*` convention (for example `EntityTag`, `EntityCompose`).
 
-Manage development containers and services:
+## Entities
 
-```bash
-# Check DevContainer service health
-intershell dev:check
+| Entity | Role |
+|--------|------|
+| **EntityAffected** | Resolve affected packages via Turbo filters |
+| **EntityBranch** | Branch data and validation helpers |
+| **EntityCommit** | Conventional commits, parsing, staged-file checks |
+| **EntityCompose** | Docker Compose parsing and validation-style operations |
+| **EntityIntershellConfig** | Load and validate `intershell.config.json` |
+| **EntityPackage** | Discover packages, read `package.json`, repo metadata |
+| **EntityPackageChangelog** | Changelog content and templates |
+| **EntityPackageCommits** | Commit ranges and dependency-aware analysis |
+| **EntityPackageTags** | Tag naming and package-specific tag logic |
+| **EntityPackageVersion** | Bump types and version data from history |
+| **EntityTag** | Tags, prefixes, and git-related tag helpers |
 
-# Setup development environment
-intershell dev:setup
+See [Developer guide: entities](./docs/1_ENTITIES.md) for a slightly longer tour and patterns.
 
-# Cleanup development resources
-intershell dev:cleanup
+## Configuration
 
-# Remove development containers
-intershell dev:rm
-```
-
-### Local Development
-
-Manage local development setup:
-
-```bash
-# Setup local development environment
-intershell local:setup
-
-# Generate VS Code workspace configuration
-intershell local:vscode
-
-# Cleanup local development resources
-intershell local:cleanup
-```
-
-## 📚 Available Commands
-
-### Version Commands
-- `version:prepare` - Prepare version bump with changelog generation
-- `version:apply` - Apply version changes (commit and tag)
-- `version:ci` - CI-friendly version preparation
-
-### Commit Commands
-- `commit` - Execute git commit with message
-- `commit-check` - Validate commit message format
-
-### CI Commands
-- `ci:act` - Run GitHub Actions workflows locally
-- `ci:attach-affected` - Attach affected packages to GitHub Actions output
-- `ci:attach-service-ports` - Attach service ports for affected Docker services
-
-### Dev Commands
-- `dev:check` - Check DevContainer service health
-- `dev:setup` - Setup development environment
-- `dev:cleanup` - Cleanup development resources
-- `dev:rm` - Remove development containers
-
-### Local Commands
-- `local:setup` - Setup local development environment
-- `local:vscode` - Generate VS Code workspace configuration
-- `local:cleanup` - Cleanup local development resources
-
-## 🔧 Core Concepts
-
-### Entity System
-
-InterShell uses an entity-driven architecture for monorepo operations:
-
-- **EntityAffected** - Detect affected packages for CI/CD optimization
-- **EntityBranch** - Git branch validation and operations
-- **EntityCommit** - Commit parsing and validation (Conventional Commits)
-- **EntityCompose** - Docker Compose parsing and service management
-- **EntityPackage** - Package management and operations
-- **EntityPackageVersion** - Version calculation and management
-- **EntityPackageChangelog** - Changelog generation
-- **EntityTag** - Git tag operations and management
-
-### Configuration
-
-InterShell can be configured via `intershell.config.json` in your project root:
+Optional project config lives at the repo root as `intershell.config.json`. Use **EntityIntershellConfig** to read and validate it from your own code.
 
 ```json
 {
@@ -162,97 +82,39 @@ InterShell can be configured via `intershell.config.json` in your project root:
 }
 ```
 
-## 🏗️ Architecture
+## Architecture
 
-```
-┌─────────────────────┐
-│   CLI Commands      │
-│  (oclif-based)      │
-├─────────────────────┤
-│   Entity System     │
-│  (Business Logic)   │
-├─────────────────────┤
-│   Core Utilities    │
-│  (colorify, etc)    │
-└─────────────────────┘
+```text
+┌─────────────────────────────────────┐
+│  Your scripts / CLI / CI            │
+├─────────────────────────────────────┤
+│  intershell (barrel)                │
+│  Entity* modules + shared helpers   │
+└─────────────────────────────────────┘
 ```
 
-### Key Principles
+The package entry re-exports entity modules from the root import (`intershell`).
 
-1. **Entity-Driven** - Business logic encapsulated in reusable entities
-2. **Type-Safe** - Full TypeScript support with strict typing
-3. **Bun-First** - Optimized for Bun runtime
-4. **Monorepo-Aware** - Built for Turborepo and monorepo workflows
-5. **CI/CD Ready** - GitHub Actions integration out of the box
+## Development
 
-## 📖 Usage Examples
-
-### Version Bump Workflow
+When working on this repository:
 
 ```bash
-# 1. Prepare version (updates package.json and generates changelog)
-intershell version:prepare
-
-# 2. Review changes
-git diff
-
-# 3. Apply version (commits and creates tag)
-intershell version:apply
+bun run lint         # Biome (report only)
+bun run lint:fix     # Biome with safe fixes written to disk
+bun run typecheck    # TypeScript
+bun test
+bun run build
+bun run check   # lint:fix, then typecheck, test, and build
 ```
 
-### Conventional Commits
+## Requirements
 
-InterShell enforces Conventional Commits standard:
+- **Bun** >= 1.0.0 (recommended runtime)
+- **Turbo** >= 2.5.8 (peer dependency — required for **EntityAffected** and similar flows)
 
-```bash
-# Valid commit formats
-intershell commit "feat(package): add new feature"
-intershell commit "fix: resolve bug"
-intershell commit "chore(deps): update dependencies"
+When you develop **inside** this repository, you also use TypeScript, Biome, and Lefthook as listed in `package.json`; consumers only need what their chosen entities call (often Turbo for monorepo graphs).
 
-# Invalid formats are rejected
-intershell commit "my commit message"  # ❌ Invalid
-```
+## License
 
-### CI/CD Pipeline
-
-In your GitHub Actions workflow:
-
-```yaml
-- name: Get affected packages
-  id: affected
-  run: intershell ci:attach-affected -o affected -m turbo
-
-- name: Build affected packages
-  run: turbo build ${{ steps.affected.outputs.affected }}
-```
-
-## 🔌 Exports
-
-InterShell exports both the CLI and programmatic APIs:
-
-```typescript
-// CLI usage
-import { colorify } from "intershell/core";
-import { EntityPackage, EntityCommit } from "intershell/entities";
-
-// Use entities programmatically
-const packages = await EntityPackage.getAllPackages();
-const commit = EntityCommit.parseByMessage("feat: new feature");
-```
-
-## 🤝 Requirements
-
-- **Bun** >= 1.0.0
-- **TypeScript** >= 5.9.3 (peer dependency)
-- **Turbo** >= 2.5.8 (peer dependency, for monorepo support)
-- **Biome** >= 2.1.2 (peer dependency, for code formatting)
-- **Lefthook** >= 1.12.4 (peer dependency, for git hooks)
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 🙏 Acknowledgments
-
-InterShell is built with Bun and designed for modern monorepo workflows.
+MIT — see [LICENSE](LICENSE).

@@ -20,15 +20,14 @@ export class EntityPackageTags {
 		return this.package.getTagSeriesName() || "v";
 	}
 
-	async createPackageTag(version: string, message?: string): Promise<void> {
+	async createPackageTag(version: string): Promise<string> {
 		const prefix = await this.getTagPrefix();
 		const tagName = `${prefix}${version}`;
-		const tagMessage = message || `Release ${this.package.getName()} version ${version}`;
 
 		// Validate the tag prefix for this package before creating the tag
 		this.validateTagPrefixForPackage(tagName);
 
-		await EntityTag.createTag(tagName, tagMessage);
+		return tagName;
 	}
 
 	async listPackageTags(): Promise<string[]> {

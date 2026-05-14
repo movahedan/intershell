@@ -9,7 +9,7 @@ pre-commit:
       stage_fixed: true
     types:
       glob: "*.{ts,tsx}"
-      run: bun run check:types
+      run: bun run typecheck
 
 commit-msg:
   commands:
@@ -23,7 +23,7 @@ pre-push:
       run: bun run commit:check --branch
     staged-validation:
       run: bun run commit:check --staged
-    check:
-      run: bun check
+    lint:
+      run: bun run lint
     build:
       run: bun run build

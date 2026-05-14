@@ -1,128 +1,67 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the InterShell CLI framework package.
+Guidance for working in the **InterShell** repository: a **Bun-first TypeScript library of monorepo entities**.
 
-## Package Overview
+## Package overview
 
-**InterShell** is a modern CLI framework for building entity-driven automation and interactive command-line applications. It provides the core foundation for monorepo management in this Turborepo setup.
+InterShell’s main value is the **entity layer**: typed helpers for commits, packages, versioning, tags, Docker Compose, affected-package detection, and config. Consumers import from the package root (`intershell`).
 
-## Essential Commands
+## Essential commands
 
-### Development
-- `bun run build` - Build the TypeScript package to `dist/`
-- `bun run check:types` - Run TypeScript type checking
-- `bun test` - Run tests for the package
+- `bun run build` — compile to `dist/`
+- `bun run typecheck` — `tsc --noEmit`
+- `bun test` — Bun test runner
+- `bun run lint` — Biome (report only)
+- `bun run lint:fix` — Biome with `--write` (apply safe fixes)
+- `bun run check` — `lint:fix`, then typecheck, test, and build
 
-### Package Structure
+## Source layout
 
-```
-packages/intershell/
-├── src/
-│   ├── core/                 # Core utilities and framework
-│   │   ├── colorify.ts      # Enhanced terminal colors
-│   │   ├── wrapshell.ts     # Script creation framework
-│   │   ├── types.ts         # Core type definitions
-│   │   └── index.ts         # Core exports
-│   ├── entities/            # Entity-driven business logic (WORKING)
-│   │   ├── affected/        # Affected package detection
-│   │   ├── branch/          # Git branch operations
-│   │   ├── commit/          # Commit parsing and validation
-│   │   ├── compose/         # Docker Compose parsing
-│   │   ├── intershell-config/ # Configuration management
-│   │   ├── package/         # Package management and operations
-│   │   ├── package-changelog/ # Changelog generation
-│   │   ├── package-commits/ # Commit analysis and dependency filtering
-│   │   ├── package-tags/    # Tag-related operations
-│   │   ├── package-version/ # Version calculation and management
-│   │   ├── tag/             # Git tag operations
-│   │   └── index.ts         # Entity exports
-│   └── interactive/         # Interactive CLI framework (IN DEVELOPMENT)
-├── package.json
-└── README.md
+```text
+src/
+├── index.ts              # Public barrel: re-exports all entities
+├── entities.shell.ts     # Shared shell/git/turbo helpers for entities
+├── affected/
+├── branch/
+├── commit/
+├── compose/
+├── intershell-config/
+├── package/
+├── package-changelog/
+├── package-commits/
+├── package-tags/
+├── package-version/
+├── tag/
+└── commit-check.ts       # Repo-local lefthook helper (not exported from index)
 ```
 
-## Current Working Features
+There may be a parallel `src/entities/**` tree during refactors; the **published surface** is whatever `src/index.ts` exports.
 
-### Entity System (Production Ready)
-The entity system provides robust, type-safe components for monorepo operations:
+## Entities (production focus)
 
-- **EntityAffected**: Affected package detection for CI/CD optimization
-- **EntityBranch**: Git branch operations and management
-- **EntityCommit**: Commit parsing, validation, conventional commit support, staged file checking
-- **EntityCompose**: Docker Compose parsing and service health monitoring
-- **EntityIntershellConfig**: Configuration management and validation
-- **EntityPackage**: Package management and operations
-- **EntityPackageChangelog**: Changelog generation, version detection, Keep a Changelog format
-- **EntityPackageCommits**: Commit analysis and dependency filtering with intelligent dependency analysis
-- **EntityPackageTags**: Tag-related operations with package-specific logic
-- **EntityPackageVersion**: Version calculation, bump type determination, version history tracking
-- **EntityTag**: Git tag operations and version management
+Each `Entity*` groups one domain:
 
-### Core Utilities (Production Ready)
-- **colorify**: Enhanced terminal colors with RGB, HSL, gradients
-- **WrapShell**: Type-safe script creation with argument parsing
-- **validators**: Input validation functions
+- **EntityAffected** — Turbo-based affected packages
+- **EntityBranch** — Branch-related behavior
+- **EntityCommit** — Parsing, validation, PR helpers, staged files
+- **EntityCompose** — Compose files and service-oriented logic
+- **EntityIntershellConfig** — Config file loading and validation
+- **EntityPackage** — Package discovery and `package.json` utilities
+- **EntityPackageChangelog** — Changelog generation helpers
+- **EntityPackageCommits** — Commit analysis and dependency filtering
+- **EntityPackageTags** — Tag conventions per package
+- **EntityPackageVersion** — Version bumps from commit history
+- **EntityTag** — Git tags and base SHAs
 
-## Architecture Notes
+## Design notes
 
-### Entity-Driven Design
-Each entity encapsulates specific domain logic:
-```typescript
-// Example: Working with commits
-import { EntityCommit } from '../entities';
+- Prefer **explicit return types** on public entity methods.
+- **Mock `entitiesShell`** in tests when git/turbo/Biome calls must be isolated.
+- Keep entities **self-contained**; share only via small internal modules (for example `entities.shell.ts`).
 
-// Validate staged files
-const { stagedFiles } = await EntityCommit.getStagedFiles();
-const errors = await EntityCommit.validateStagedFiles(stagedFiles);
+## Dependencies
 
-// Parse commit messages
-const commit = EntityCommit.parseCommit('feat: add new feature');
-const versionBump = EntityCommit.suggestVersionBump(['feat', 'fix']);
-```
+- **Peer**: Turbo (for affected-package and related workflows)
+- **Dev**: TypeScript, Biome, Bun types, Lefthook — see `package.json`
 
-### Current Usage in Monorepo
-The entities are actively used in:
-- `scripts/commit-check.ts` - Staged file validation using EntityCommit
-- `scripts/version-prepare.ts` - Version bump detection with EntityPackageCommits dependency analysis
-- `scripts/version-apply.ts` - Changelog generation using EntityPackageChangelog
-- CI/CD workflows for affected package detection using EntityAffected
-- Dependency-aware version bumping using EntityPackageVersion
-- Cross-package impact detection using EntityPackageCommits
-- Configuration management using EntityIntershellConfig
-
-## Interactive Framework Status
-
-**Note**: The interactive page-based navigation system described in the README is currently in development. The working system focuses on:
-- Entity-based operations for monorepo management
-- Script automation and validation
-- CLI utilities and enhanced terminal output
-
-## Development Guidelines
-
-### Entity Development
-When working with entities:
-- Each entity should be self-contained with clear responsibilities
-- Use TypeScript strict typing throughout
-- Include comprehensive error handling
-- Write tests for all entity methods
-- Follow the established patterns in existing entities
-
-### Testing
-- Use Bun test runner with the custom test preset
-- Test entity methods independently
-- Mock external dependencies (file system, git operations)
-- Include both unit and integration tests
-
-### Type Safety
-- All entity methods must have explicit return types
-- Use proper TypeScript interfaces for all data structures
-- Avoid `any` types - use proper typing with type guards
-- Export types from entity modules for external use
-
-## Key Dependencies
-
-- **Peer Dependencies**: Biome, Lefthook, Turbo, TypeScript
-- **Dev Dependencies**: Custom test preset and TypeScript config from workspace
-- **Runtime**: Designed for Bun runtime with zero external dependencies
-
-When working with this package, focus on the entity system for monorepo operations rather than the interactive framework which is still in development.
+When changing behavior, update **README.md** and **docs/** if user-facing behavior or imports change.

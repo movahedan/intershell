@@ -28,6 +28,7 @@ type EntitiesShell = {
 	gitMergeBaseIsAncestor: (ancestor: string, descendant: string) => ReturnType<typeof $>;
 
 	gitCheckout: (tagName: string) => ReturnType<typeof $>;
+	gitPush: (branch: string) => ReturnType<typeof $>;
 
 	turboRunBuild: (args: string[]) => ReturnType<typeof $>;
 
@@ -72,6 +73,7 @@ export const entitiesShell: EntitiesShell = {
 		$`git merge-base --is-ancestor ${ancestor} ${descendant}`.quiet().nothrow(),
 
 	gitCheckout: (tagName: string) => $`git checkout ${tagName}`.quiet().nothrow(),
+	gitPush: (branch: string) => $`git push --set-upstream origin ${branch}`.quiet().nothrow(),
 
 	turboRunBuild: (args: string[]) =>
 		$`bunx turbo run build ${args.join(" ")} --dry-run=json`.nothrow(),

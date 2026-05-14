@@ -1,7 +1,11 @@
-#!/usr/bin/env node
-
-import { fileURLToPath } from "node:url";
-import { run } from "@oclif/core";
-
-const __filename = fileURLToPath(import.meta.url);
-await run(process.argv.slice(2), __filename);
+export * from "./affected";
+export * from "./branch";
+export * from "./commit";
+export * from "./compose";
+export * from "./intershell-config/intershell-config.default";
+export * from "./package";
+export * from "./package-changelog";
+export * from "./package-commits";
+export * from "./package-tags";
+export * from "./package-version";
+export * from "./tag";

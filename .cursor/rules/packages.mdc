@@ -236,10 +236,12 @@ After installing packages:
 2. **Check lock file** - Ensure lock file (bun.lockb) is updated
 3. **Test installation** - Import and use the package to verify it works
 4. **Run type check** - Ensure TypeScript types are working
+5. **Run lint** - Ensure Biome passes
 
 ```bash
 # Verify installation
-bun run check:types
+bun run lint
+bun run typecheck
 bun test
 bun run build
 ```
