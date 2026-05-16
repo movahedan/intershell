@@ -7,8 +7,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.6.2
-###### <a href="https://github.com/movahedan/intershell.git/commit/71e4fb9fb8ebb34137fc33fc24356b037943811d"><img src="https://img.shields.io/badge/fix-(root)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> print CLI errors without Bun stack traces ([71e4fb9](https://github.com/movahedan/intershell.git/commit/71e4fb9fb8ebb34137fc33fc24356b037943811d)) by **Soheil Movahedan**
 ## v0.6.1
 ###### <a href="https://github.com/movahedan/intershell.git/commit/c89be1ed4ac09500a74bb87ad1c0f77bbae61286"><img src="https://img.shields.io/badge/fix-(noscope)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> gh releases only for the published version ([c89be1e](https://github.com/movahedan/intershell.git/commit/c89be1ed4ac09500a74bb87ad1c0f77bbae61286)) by **Soheil Movahedan**
 ## v0.6.0
