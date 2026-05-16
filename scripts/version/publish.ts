@@ -4,6 +4,7 @@ import path from "node:path";
 import { $ } from "bun";
 import { DefaultChangelogTemplate, EntityPackage, EntityPackageTags } from "../../src/index";
 import { colorify } from "../colorify";
+import { ensureNpmAuthenticated } from "../ensure-npm-auth";
 import { printCliErrorAndExit } from "../format-cli-error";
 
 interface PublishFlags {
@@ -14,6 +15,7 @@ interface PublishFlags {
 	readonly noTagCheck: boolean;
 	readonly npmTag: string | undefined;
 	readonly noGithub: boolean;
+	readonly noNpmLogin: boolean;
 }
 
 function printHelp(): void {
@@ -34,6 +36,7 @@ Options:
       --no-tag-check     Do not require a local git tag for the current version
       --tag <dist-tag>   npm dist-tag (passed to npm publish --tag)
       --no-github        Skip GitHub release (after a real npm publish, runs gh by default)
+      --no-npm-login     Do not run interactive npm login when not authenticated
   -h, --help             Show this help
 `);
 }
@@ -46,6 +49,7 @@ function parsePublishArgv(argv: string[]): PublishFlags {
 	let noTagCheck = false;
 	let npmTag: string | undefined;
 	let noGithub = false;
+	let noNpmLogin = false;
 
 	for (let i = 0; i < argv.length; i++) {
 		const a = argv[i];
@@ -72,6 +76,10 @@ function parsePublishArgv(argv: string[]): PublishFlags {
 		}
 		if (a === "--no-github") {
 			noGithub = true;
+			continue;
+		}
+		if (a === "--no-npm-login") {
+			noNpmLogin = true;
 			continue;
 		}
 		if (a === "-p" || a === "--package") {
@@ -110,6 +118,7 @@ function parsePublishArgv(argv: string[]): PublishFlags {
 		noTagCheck,
 		npmTag: resolvedNpmTag,
 		noGithub,
+		noNpmLogin,
 	};
 }
 
@@ -270,6 +279,12 @@ async function main(): Promise<void> {
 		console.log(`🔨 Building in ${publishCwd}...`);
 		await $`bun run build`.cwd(publishCwd);
 		console.log(colorify.green("✅ Build finished"));
+	}
+
+	if (!flags.dryRun && !flags.noNpmLogin) {
+		await ensureNpmAuthenticated({
+			allowInteractiveLogin: process.stdin.isTTY,
+		});
 	}
 
 	const npmParts = ["npm", "publish"];

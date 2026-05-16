@@ -118,6 +118,8 @@ The script lives at `scripts/version/publish.ts` and is exposed as `version:publ
 
 After a real `npm publish`, it runs [`gh release create`](https://cli.github.com/manual/gh_release_create) (or `gh release edit` if the release already exists). Install the [GitHub CLI](https://cli.github.com/) and run `gh auth login`. The version tag must exist on the remote (`--verify-tag`). Use `--no-github` to skip. Release notes are the **parsed slice for that semver** from `CHANGELOG.md` (same rules as `ChangelogTemplate.parseVersions` / `DefaultChangelogTemplate`); if missing, new releases use `--generate-notes` and edits only update the title.
 
+If you are not logged in to npm, `version:publish` runs `npm login` and waits for you to finish (interactive terminal only). Use `--no-npm-login` to skip that prompt (for CI with `NPM_TOKEN`).
+
 ## Requirements
 
 - **Bun** >= 1.0.0 (recommended runtime)
