@@ -151,7 +151,7 @@ export const defaultConfig = {
 		},
 		staged: [
 			{
-				filePattern: [/coverage\/.*/, /dist\/.*/, /node_modules\/.*/, /\.env/, /\.act/],
+				filePattern: [/coverage\/.*/, /dist\/.*/, /node_modules\/.*/, /(^|\/)\.env$/, /\.act/],
 				description: "development files should not be manually committed",
 			},
 			{

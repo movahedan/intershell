@@ -284,6 +284,7 @@ async function main(): Promise<void> {
 	if (!flags.dryRun && !flags.noNpmLogin) {
 		await ensureNpmAuthenticated({
 			allowInteractiveLogin: process.stdin.isTTY,
+			cwd: publishCwd,
 		});
 	}
 
