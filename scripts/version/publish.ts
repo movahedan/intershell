@@ -4,6 +4,7 @@ import path from "node:path";
 import { $ } from "bun";
 import { DefaultChangelogTemplate, EntityPackage, EntityPackageTags } from "../../src/index";
 import { colorify } from "../colorify";
+import { printCliErrorAndExit } from "../format-cli-error";
 
 interface PublishFlags {
 	readonly packageName: string;
@@ -348,6 +349,5 @@ async function main(): Promise<void> {
 try {
 	await main();
 } catch (error) {
-	console.error(error instanceof Error ? error.message : String(error));
-	process.exit(1);
+	printCliErrorAndExit(error);
 }

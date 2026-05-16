@@ -3,6 +3,7 @@ import { entitiesShell } from "../../src/entities.shell";
 import { EntityPackage } from "../../src/package";
 import { EntityPackageTags } from "../../src/package-tags";
 import { colorify } from "../colorify";
+import { printCliErrorAndExit } from "../format-cli-error";
 
 interface ApplyFlags {
 	readonly packageName: string;
@@ -209,6 +210,5 @@ async function main(): Promise<void> {
 try {
 	await main();
 } catch (error) {
-	console.error(error instanceof Error ? error.message : String(error));
-	process.exit(1);
+	printCliErrorAndExit(error);
 }
