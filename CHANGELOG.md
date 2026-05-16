@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.6.2
+###### <a href="https://github.com/movahedan/intershell.git/commit/25db320f60a12b76bf13582e200cd50ebce4d943"><img src="https://img.shields.io/badge/fix-(root)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> prompt for npm login before version:publish ([25db320](https://github.com/movahedan/intershell.git/commit/25db320f60a12b76bf13582e200cd50ebce4d943)) by **Soheil Movahedan**
+###### <a href="https://github.com/movahedan/intershell.git/commit/0cc5edad106cc42c5ab29e0327c328997f9622d4"><img src="https://img.shields.io/badge/other-(noscope)-6B7280?style=flat" alt="other" style="vertical-align: middle;" /></a> Revert "release(root): v0.6.2 [patch] (0.6.1 => 0.6.2)" ([0cc5eda](https://github.com/movahedan/intershell.git/commit/0cc5edad106cc42c5ab29e0327c328997f9622d4)) by **Soheil Movahedan**
+###### <a href="https://github.com/movahedan/intershell.git/commit/d0ea83348077209c151652ed2cb32861d78f661f"><img src="https://img.shields.io/badge/release-(root)-059669?style=flat" alt="release" style="vertical-align: middle;" /></a> v0.6.2 [patch] (0.6.1 => 0.6.2) ([d0ea833](https://github.com/movahedan/intershell.git/commit/d0ea83348077209c151652ed2cb32861d78f661f)) by **Soheil Movahedan**
+###### <a href="https://github.com/movahedan/intershell.git/commit/71e4fb9fb8ebb34137fc33fc24356b037943811d"><img src="https://img.shields.io/badge/fix-(root)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> print CLI errors without Bun stack traces ([71e4fb9](https://github.com/movahedan/intershell.git/commit/71e4fb9fb8ebb34137fc33fc24356b037943811d)) by **Soheil Movahedan**
 ## v0.6.1
 ###### <a href="https://github.com/movahedan/intershell.git/commit/c89be1ed4ac09500a74bb87ad1c0f77bbae61286"><img src="https://img.shields.io/badge/fix-(noscope)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> gh releases only for the published version ([c89be1e](https://github.com/movahedan/intershell.git/commit/c89be1ed4ac09500a74bb87ad1c0f77bbae61286)) by **Soheil Movahedan**
 ## v0.6.0
