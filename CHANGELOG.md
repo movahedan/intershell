@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.6.3
+###### <a href="https://github.com/movahedan/intershell.git/commit/361f8f1dca7d90b60a19b0f23d64fcc0b5cb0790"><img src="https://img.shields.io/badge/refactor-(root)-007ACC?style=flat" alt="refactor" style="vertical-align: middle;" /></a> adopt workspace scopes and workspaces-based discovery ([361f8f1](https://github.com/movahedan/intershell.git/commit/361f8f1dca7d90b60a19b0f23d64fcc0b5cb0790)) by **Soheil Movahedan**
 ## v0.6.2
 ###### <a href="https://github.com/movahedan/intershell.git/commit/318cf04a7895925318893b0fac8ba387e6194a75"><img src="https://img.shields.io/badge/fix-(root)-EF4444?style=flat" alt="fix" style="vertical-align: middle;" /></a> authenticate npm publish with NPM_TOKEN from .env ([318cf04](https://github.com/movahedan/intershell.git/commit/318cf04a7895925318893b0fac8ba387e6194a75)) by **Soheil Movahedan**
 ###### <a href="https://github.com/movahedan/intershell.git/commit/fa5a55b4d52af910b5faecbf1787e7283f199b2a"><img src="https://img.shields.io/badge/other-(noscope)-6B7280?style=flat" alt="other" style="vertical-align: middle;" /></a> Revert "release(root): v0.6.2 [patch] (0.6.1 => 0.6.2)" ([fa5a55b](https://github.com/movahedan/intershell.git/commit/fa5a55b4d52af910b5faecbf1787e7283f199b2a)) by **Soheil Movahedan**
