@@ -4,7 +4,7 @@ type CustomBunType = {
 	YAML: {
 		parse: (input: string) => Record<string, unknown>;
 	};
-	file: (path: string) => { text: () => string };
+	file: (path: string) => { text: () => Promise<string>; exists: () => Promise<boolean> };
 };
 
 describe("EntityCompose", () => {
@@ -55,13 +55,6 @@ describe("EntityCompose", () => {
 		originalBunFile = (Bun as unknown as CustomBunType).file;
 	});
 
-	// Restore mocks after each test
-	afterEach(() => {
-		// Restore original Bun methods
-		(Bun as unknown as CustomBunType).YAML = originalBunYaml;
-		(Bun as unknown as CustomBunType).file = originalBunFile;
-	});
-
 	// Store original methods to restore after tests
 	let originalEntityPackageGetAllPackages: () => Promise<string[]>;
 	let originalEntityAffectedGetAffectedPackages: (
@@ -104,13 +97,22 @@ describe("EntityCompose", () => {
 		}
 	};
 
+	afterEach(async () => {
+		(Bun as unknown as CustomBunType).YAML = originalBunYaml;
+		(Bun as unknown as CustomBunType).file = originalBunFile;
+		await cleanupMocks();
+	});
+
 	// Common mock setup for Bun
 	const setupBunMocks = (
 		mockYamlParse: ReturnType<typeof mock>,
 		mockFileText: ReturnType<typeof mock>,
 	) => {
 		(Bun as unknown as CustomBunType).YAML = { parse: mockYamlParse };
-		(Bun as unknown as CustomBunType).file = mock(() => ({ text: mockFileText }));
+		(Bun as unknown as CustomBunType).file = mock(() => ({
+			text: mockFileText,
+			exists: () => Promise.resolve(true),
+		}));
 	};
 
 	it("should handle core functionality - parsing, validation, and basic operations", async () => {
@@ -329,8 +331,8 @@ describe("EntityCompose", () => {
 			return defaultYaml;
 		});
 
-		// Set up Bun mock for static method testing
-		(Bun as unknown as CustomBunType).YAML = { parse: mockYamlParse };
+		const mockFileText = mock(() => Promise.resolve(""));
+		setupBunMocks(mockYamlParse, mockFileText);
 
 		const yamlInput = `
 version: "3.9"
@@ -378,6 +380,28 @@ volumes:
 	it("should handle depends_on in object format (long syntax)", async () => {
 		await setupMocks();
 
+		const yamlInput = `
+version: "3.8"
+services:
+  app:
+    image: node:18
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+`;
+
 		const mockYamlParse = mock((input: string) => {
 			if (input.includes("service_healthy")) {
 				return {
@@ -411,34 +435,11 @@ volumes:
 			return defaultYaml;
 		});
 
-		const mockFileText = mock(() => Promise.resolve("mock yaml content"));
+		const mockFileText = mock(() => Promise.resolve(yamlInput));
 		setupBunMocks(mockYamlParse, mockFileText);
 
 		const { EntityCompose } = await import("./compose");
 		const entityCompose = new EntityCompose("docker-compose.yml");
-
-		// Test parsing with object format depends_on
-		const yamlInput = `
-version: "3.8"
-services:
-  app:
-    image: node:18
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-  postgres:
-    image: postgres:13
-    ports:
-      - "5432:5432"
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-`;
 
 		const composeData = EntityCompose.parseDockerCompose(yamlInput);
 		expect(composeData.services.app.depends_on).toEqual(["postgres", "redis"]);

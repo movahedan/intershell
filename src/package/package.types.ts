@@ -17,7 +17,7 @@ export interface PackageJson {
 	homepage?: string;
 	keywords?: string[];
 	private?: boolean;
-	workspaces?: string[];
+	workspaces?: string[] | { packages?: string[] };
 	[key: string]: unknown;
 }
 

@@ -1,5 +1,9 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+	discoverWorkspacePackageNamesSync,
+	findWorkspaceRootSync,
+} from "../package/workspace-discovery";
 import { defaultConfig } from "./intershell-config.default";
 import type { CustomConfigJson, IConfig } from "./intershell-config.types";
 
@@ -96,29 +100,10 @@ class Config {
 		const packages: string[] = ["root"];
 
 		try {
-			// Get workspace root
-			const workspaceRoot = process.cwd();
-
-			// Check for apps directory
-			const appsPath = join(workspaceRoot, "apps");
-			if (existsSync(appsPath)) {
-				const apps = readdirSync(appsPath, { withFileTypes: true })
-					.filter((dirent) => dirent.isDirectory())
-					.map((dirent) => dirent.name);
-				packages.push(...apps);
-			}
-
-			// Check for packages directory
-			const packagesPath = join(workspaceRoot, "packages");
-			if (existsSync(packagesPath)) {
-				const pkgs = readdirSync(packagesPath, { withFileTypes: true })
-					.filter((dirent) => dirent.isDirectory())
-					.map((dirent) => `@repo/${dirent.name}`);
-				packages.push(...pkgs);
-			}
+			const workspaceRoot = findWorkspaceRootSync();
+			packages.push(...discoverWorkspacePackageNamesSync(workspaceRoot));
 		} catch {
-			// If we can't read directories, just return basic packages
-			packages.push("admin", "api", "storefront", "ui", "utils");
+			// If we can't read workspaces, fall back to root only
 		}
 
 		return packages;

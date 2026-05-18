@@ -35,7 +35,7 @@
 		"typecheck": "tsc --noEmit",
 		"build": "rm -rf dist && tsc -p tsconfig.build.json",
 		"lint": "biome check .",
-		"test": "bun test",
+		"test": "bun test --max-concurrency=1",
 		"check": "bun run lint --fix && bun run typecheck && bun run test && bun run build",
 		"commit:check": "bun run ./src/commit-check.ts",
 		"version:prepare": "bun run ./scripts/version/prepare.ts",

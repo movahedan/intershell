@@ -1,5 +1,5 @@
 import { EntityAffected } from "../affected";
-import { EntityPackage } from "../package";
+import { EntityPackage, stripWorkspaceScope } from "../package";
 import type {
 	ComposeData,
 	ComposeValidationResult,
@@ -158,9 +158,7 @@ export class EntityCompose {
 
 			// Find services associated with affected packages
 			for (const service of services) {
-				const associatedPackage = allPackages.find(
-					(p) => p.replace(/^@repo\//, "") === service.name,
-				);
+				const associatedPackage = allPackages.find((p) => stripWorkspaceScope(p) === service.name);
 
 				if (keys.some((k: string) => k === associatedPackage)) {
 					affectedServices.add(service.name);

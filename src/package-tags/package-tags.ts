@@ -188,7 +188,7 @@ export class EntityPackageTags {
 				packageName = matchingPackage;
 			} else {
 				throw new Error(
-					`Invalid tag prefix format: "${prefix}". Expected format: v (root) or package-name-v (e.g., api-v, intershell-v)`,
+					`Invalid tag prefix format: "${prefix}". Expected format: v (root) or <scope>/<name>-v (e.g., apps/api-v, packages/intershell-v)`,
 				);
 			}
 

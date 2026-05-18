@@ -1,7 +1,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { entitiesShell } from "../entities.shell";
-import { EntityPackage, type TsConfig, type TsConfigPaths } from "../package";
+import {
+	discoverWorkspacePackagesAsync,
+	EntityPackage,
+	packageNameFromAbsolutePath,
+	type TsConfig,
+	type TsConfigPaths,
+	type WorkspacePackageEntry,
+} from "../package";
+import { packagesShell } from "../package/package.shell";
 
 export class EntityDependencyAnalyzer {
 	private readonly package: EntityPackage;
@@ -16,28 +24,48 @@ export class EntityDependencyAnalyzer {
 	 */
 	async getPackageDependenciesAtRef(reference: string): Promise<string[]> {
 		try {
-			// Get all internal packages in the monorepo
 			const allPackages = await EntityPackage.getAllPackages();
+			const internalPackages = new Set(allPackages);
+			const workspaceContext = await this.getWorkspaceContext();
 
-			// Get package.json dependencies
-			const packageJsonDeps = await this.getPackageJsonDependencies(reference);
+			const packageJsonDeps = await this.getPackageJsonDependencies(reference, internalPackages);
+			const tsconfigDeps = await this.getTsConfigDependencies(
+				reference,
+				internalPackages,
+				workspaceContext,
+			);
 
-			// Get tsconfig dependencies
-			const tsconfigDeps = await this.getTsConfigDependencies(reference);
-
-			// Combine and filter for internal dependencies only
 			const allDeps = [...new Set([...packageJsonDeps, ...tsconfigDeps])];
-
-			return allDeps.filter((dep) => allPackages.includes(dep));
+			return allDeps.filter((dep) => internalPackages.has(dep));
 		} catch {
 			return [];
 		}
 	}
 
+	private async getWorkspaceContext(): Promise<{
+		readonly workspaceRoot: string;
+		readonly workspacePackages: WorkspacePackageEntry[];
+	}> {
+		const workspaceRoot = await packagesShell.getWorkspaceRoot();
+		const rootPackageJson = packagesShell.readJsonFile(`${workspaceRoot}/package.json`);
+		const workspacePackages = await discoverWorkspacePackagesAsync(
+			workspaceRoot,
+			packagesShell.readDirectory,
+			packagesShell.canAccessFile,
+			packagesShell.readFileAsText,
+			rootPackageJson,
+		);
+
+		return { workspaceRoot, workspacePackages };
+	}
+
 	/**
 	 * Get package.json dependencies for a package at a specific reference
 	 */
-	private async getPackageJsonDependencies(reference: string): Promise<string[]> {
+	private async getPackageJsonDependencies(
+		reference: string,
+		internalPackages: ReadonlySet<string>,
+	): Promise<string[]> {
 		try {
 			const result = await entitiesShell.gitShowPackageJsonAtTag(
 				reference,
@@ -61,8 +89,7 @@ export class EntityDependencyAnalyzer {
 					: []),
 			];
 
-			// Filter for @repo/ packages and return without @repo/ prefix
-			return deps.filter((dep) => dep.startsWith("@repo/")).map((dep) => dep.replace("@repo/", ""));
+			return deps.filter((dep) => internalPackages.has(dep));
 		} catch {
 			return [];
 		}
@@ -71,7 +98,14 @@ export class EntityDependencyAnalyzer {
 	/**
 	 * Get tsconfig dependencies by resolving paths to actual internal packages
 	 */
-	private async getTsConfigDependencies(reference: string): Promise<string[]> {
+	private async getTsConfigDependencies(
+		reference: string,
+		internalPackages: ReadonlySet<string>,
+		workspaceContext: {
+			readonly workspaceRoot: string;
+			readonly workspacePackages: WorkspacePackageEntry[];
+		},
+	): Promise<string[]> {
 		try {
 			const packagePath = this.package.getPath();
 			const tsconfigPaths = await this.getTsConfigPaths(reference);
@@ -79,16 +113,18 @@ export class EntityDependencyAnalyzer {
 			const deps: string[] = [];
 
 			for (const [alias, paths] of Object.entries(tsconfigPaths)) {
-				// Check if alias itself is an internal package
-				if (alias.startsWith("@repo/")) {
-					deps.push(alias.replace("@repo/", ""));
+				if (internalPackages.has(alias)) {
+					deps.push(alias);
 				}
 
-				// Check if paths point to internal packages
 				if (Array.isArray(paths)) {
 					for (const path of paths) {
 						const resolvedPath = resolve(packagePath, path);
-						const internalPackage = this.findInternalPackageFromPath(resolvedPath);
+						const internalPackage = this.findInternalPackageFromPath(
+							resolvedPath,
+							workspaceContext.workspaceRoot,
+							workspaceContext.workspacePackages,
+						);
 						if (internalPackage) {
 							deps.push(internalPackage);
 						}
@@ -102,23 +138,12 @@ export class EntityDependencyAnalyzer {
 		}
 	}
 
-	/**
-	 * Find internal package name from absolute path
-	 */
-	private findInternalPackageFromPath(absolutePath: string): string | null {
-		// Check if path points to packages/ or apps/ directory
-		const packagesMatch = absolutePath.match(/\/packages\/([^/]+)/);
-		const appsMatch = absolutePath.match(/\/apps\/([^/]+)/);
-
-		if (packagesMatch) {
-			return `@repo/${packagesMatch[1]}`;
-		}
-
-		if (appsMatch) {
-			return appsMatch[1];
-		}
-
-		return null;
+	private findInternalPackageFromPath(
+		absolutePath: string,
+		workspaceRoot: string,
+		workspacePackages: readonly WorkspacePackageEntry[],
+	): string | null {
+		return packageNameFromAbsolutePath(absolutePath, workspaceRoot, workspacePackages);
 	}
 
 	/**
@@ -142,14 +167,12 @@ export class EntityDependencyAnalyzer {
 		try {
 			const result = await entitiesShell.gitShow(`${reference}:${this.package.getTsconfigPath()}`);
 			if (result.exitCode !== 0) {
-				// If tsconfig.json doesn't exist at this reference, return empty config
 				return {};
 			}
 
 			const content = result.text();
 			return JSON.parse(content);
 		} catch {
-			// If parsing fails, return empty config
 			return {};
 		}
 	}
@@ -171,10 +194,8 @@ export class EntityDependencyAnalyzer {
 			const extendedContent = readFileSync(extendedPath, "utf-8");
 			const extendedConfig: TsConfig = JSON.parse(extendedContent);
 
-			// Recursively resolve extended configs
 			const resolvedExtended = await this.resolveExtendedTsConfig(extendedConfig, packagePath);
 
-			// Merge configurations
 			return {
 				...resolvedExtended,
 				...config,

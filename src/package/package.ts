@@ -2,6 +2,12 @@ import { entitiesShell } from "../entities.shell";
 import { entitiesConfig } from "../intershell-config/intershell-config";
 import { packagesShell } from "./package.shell";
 import type { PackageJson, TsConfig } from "./package.types";
+import {
+	discoverWorkspacePackageNamesAsync,
+	discoverWorkspacePackagesSync,
+	findWorkspaceRootSync,
+	getWorkspacePackagePath,
+} from "./workspace-discovery";
 
 export class EntityPackage {
 	private readonly packageName: string;
@@ -20,9 +26,16 @@ export class EntityPackage {
 
 	getPath(): string {
 		if (this.packageName === "root") return ".";
-		if (this.packageName.startsWith("@repo/"))
-			return `packages/${this.packageName.replace("@repo/", "")}`;
-		return `apps/${this.packageName}`;
+		const workspacePath = getWorkspacePackagePath(this.packageName);
+		if (workspacePath !== null) return workspacePath;
+
+		const workspaceRoot = findWorkspaceRootSync();
+		const entry = discoverWorkspacePackagesSync(workspaceRoot).find(
+			(pkg) => pkg.name === this.packageName,
+		);
+		if (entry) return entry.relativePath;
+
+		return this.packageName;
 	}
 
 	getJsonPath(): string {
@@ -138,14 +151,13 @@ export class EntityPackage {
 
 	/**
 	 * Gets the tag series name for this package
-	 * @returns tag series prefix (e.g., 'v', 'intershell-v') or null if package shouldn't be versioned
+	 * @returns tag series prefix (e.g., 'v', 'packages/intershell-v') or null if package shouldn't be versioned
 	 */
 	getTagSeriesName(): string | null {
 		if (!this.shouldVersion()) return null;
 
-		// Generate tag series name based on package name
 		if (this.packageName === "root") return "v";
-		return `${this.packageName.replace("@repo/", "")}-v`;
+		return `${this.packageName.replaceAll("@", "")}-v`;
 	}
 
 	static getRepoUrl(): string {
@@ -156,58 +168,18 @@ export class EntityPackage {
 	}
 	static async getAllPackages(): Promise<string[]> {
 		const packages: string[] = ["root"];
-
-		// Get workspace root
 		const workspaceRoot = await packagesShell.getWorkspaceRoot();
+		const rootPackageJson = packagesShell.readJsonFile(`${workspaceRoot}/package.json`);
 
-		// Read apps directory
-		let apps: string[] = [];
-		try {
-			const appsPath = `${workspaceRoot}/apps`;
-			apps = await packagesShell.readDirectory(appsPath);
-		} catch {
-			// apps directory doesn't exist or can't be read
-		}
-
-		// Read packages directory
-		let pkgs: string[] = [];
-		try {
-			const packagesPath = `${workspaceRoot}/packages`;
-			const packageNames = await packagesShell.readDirectory(packagesPath);
-			pkgs = packageNames.map((name) => `@repo/${name}`);
-		} catch {
-			// packages directory doesn't exist or can't be read
-		}
-
-		// Filter packages that have valid package.json files
-		const filteredPackages = await Promise.all(
-			[...apps, ...pkgs].map(async (pkg) => {
-				const packageInstance = new EntityPackage(pkg);
-				const packageJsonPath = packageInstance.getJsonPath();
-
-				try {
-					const exists = await packagesShell.canAccessFile(packageJsonPath);
-					if (!exists) return null;
-
-					const packageJsonContent = await packagesShell.readFileAsText(packageJsonPath);
-					const packageJson = JSON.parse(packageJsonContent);
-					const name = packageJson.name;
-
-					if (!name) return null;
-
-					if (name !== pkg) {
-						throw new Error(`Package ${pkg} has a different name in package.json: ${name}`);
-					}
-
-					return name;
-				} catch {
-					return null;
-				}
-			}),
+		const workspacePackages = await discoverWorkspacePackageNamesAsync(
+			workspaceRoot,
+			packagesShell.readDirectory,
+			packagesShell.canAccessFile,
+			packagesShell.readFileAsText,
+			rootPackageJson,
 		);
 
-		packages.push(...filteredPackages.filter((pkg): pkg is string => pkg !== null));
-
+		packages.push(...workspacePackages);
 		return packages;
 	}
 

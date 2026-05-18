@@ -226,13 +226,23 @@ describe("EntityPackage", () => {
 			expect(rootPackages.getPath()).toBe(".");
 		});
 
-		it("should return packages path for @repo packages", () => {
-			const repoPackages = new EntityPackage("@repo/test-package");
-			expect(repoPackages.getPath()).toBe("packages/test-package");
+		it("should return packages path for @packages packages", () => {
+			const packagesPackage = new EntityPackage("@packages/test-package");
+			expect(packagesPackage.getPath()).toBe("packages/test-package");
 		});
 
-		it("should return apps path for regular packages", () => {
-			expect(packages.getPath()).toBe("apps/test-package");
+		it("should return apps path for @apps packages", () => {
+			const appsPackage = new EntityPackage("@apps/test-app");
+			expect(appsPackage.getPath()).toBe("apps/test-app");
+		});
+
+		it("should return tools path for @tools packages", () => {
+			const toolsPackage = new EntityPackage("@tools/test-preset");
+			expect(toolsPackage.getPath()).toBe("tools/test-preset");
+		});
+
+		it("should return package name as path for unscoped packages", () => {
+			expect(packages.getPath()).toBe("test-package");
 		});
 	});
 
@@ -242,7 +252,7 @@ describe("EntityPackage", () => {
 		});
 
 		it("should return correct package.json path", () => {
-			expect(packages.getJsonPath()).toBe("apps/test-package/package.json");
+			expect(packages.getJsonPath()).toBe("test-package/package.json");
 		});
 
 		it("should return correct path for root package", () => {
@@ -250,9 +260,9 @@ describe("EntityPackage", () => {
 			expect(rootPackages.getJsonPath()).toBe("./package.json");
 		});
 
-		it("should return correct path for @repo package", () => {
-			const repoPackages = new EntityPackage("@repo/test-package");
-			expect(repoPackages.getJsonPath()).toBe("packages/test-package/package.json");
+		it("should return correct path for @packages package", () => {
+			const packagesPackage = new EntityPackage("@packages/test-package");
+			expect(packagesPackage.getJsonPath()).toBe("packages/test-package/package.json");
 		});
 	});
 
@@ -358,7 +368,7 @@ describe("EntityPackage", () => {
 		});
 
 		it("should return correct changelog path", () => {
-			expect(packages.getChangelogPath()).toBe("apps/test-package/CHANGELOG.md");
+			expect(packages.getChangelogPath()).toBe("test-package/CHANGELOG.md");
 		});
 	});
 
@@ -540,14 +550,13 @@ describe("EntityPackage", () => {
 				expect(rootPackages.getTagSeriesName()).toBe("v");
 			});
 
-			it.skip("should return 'package-name-v' for @repo packages", () => {
-				// Mock packagesShell to return @repo package for this test
+			it.skip("should return 'packages/package-name-v' for @packages packages", () => {
 				mockPackagesShell.readJsonFile.mockImplementationOnce(() =>
-					mockPackageJson({ name: "@repo/package-name", private: false }),
+					mockPackageJson({ name: "@packages/package-name", private: false }),
 				);
 
-				const intershellPackages = new EntityPackage("@repo/package-name");
-				expect(intershellPackages.getTagSeriesName()).toBe("package-name-v");
+				const intershellPackages = new EntityPackage("@packages/package-name");
+				expect(intershellPackages.getTagSeriesName()).toBe("packages/package-name-v");
 			});
 
 			it.skip("should return 'package-name-v' for regular packages", () => {
@@ -675,51 +684,79 @@ describe("EntityPackage", () => {
 
 		describe("getAllPackages", () => {
 			it("should return list of packages including root", async () => {
-				// Mock packagesShell methods for this test
 				mockPackagesShell.getWorkspaceRoot.mockResolvedValueOnce("/workspace");
-				mockPackagesShell.readDirectory
-					.mockResolvedValueOnce(["test-app", "another-app"]) // apps
-					.mockResolvedValueOnce(["ui", "utils"]); // packages
-				mockPackagesShell.canAccessFile
-					.mockResolvedValueOnce(true) // apps/test-app/package.json
-					.mockResolvedValueOnce(true) // apps/another-app/package.json
-					.mockResolvedValueOnce(true) // packages/ui/package.json
-					.mockResolvedValueOnce(true); // packages/utils/package.json
-				mockPackagesShell.readFileAsText
-					.mockResolvedValueOnce('{"name": "test-app", "version": "1.0.0"}')
-					.mockResolvedValueOnce('{"name": "another-app", "version": "1.0.0"}')
-					.mockResolvedValueOnce('{"name": "@repo/ui", "version": "1.0.0"}')
-					.mockResolvedValueOnce('{"name": "@repo/utils", "version": "1.0.0"}');
+				mockPackagesShell.readJsonFile.mockImplementation((filePath: string) => {
+					if (filePath === "/workspace/package.json") {
+						return {
+							name: "root",
+							workspaces: ["apps/*", "packages/*", "tools/*"],
+						};
+					}
+					return mockPackageJson();
+				});
+				mockPackagesShell.readDirectory.mockImplementation((dirPath: string) => {
+					if (dirPath.endsWith("/apps")) return Promise.resolve(["test-app", "another-app"]);
+					if (dirPath.endsWith("/packages")) return Promise.resolve(["ui", "utils"]);
+					if (dirPath.endsWith("/tools")) return Promise.resolve(["typescript-config"]);
+					return Promise.resolve([]);
+				});
+				mockPackagesShell.canAccessFile.mockResolvedValue(true);
+				mockPackagesShell.readFileAsText.mockImplementation((filePath: string) => {
+					const packageNames: Record<string, string> = {
+						"/workspace/apps/test-app/package.json":
+							'{"name": "@apps/test-app", "version": "1.0.0"}',
+						"/workspace/apps/another-app/package.json":
+							'{"name": "@apps/another-app", "version": "1.0.0"}',
+						"/workspace/packages/ui/package.json": '{"name": "@packages/ui", "version": "1.0.0"}',
+						"/workspace/packages/utils/package.json":
+							'{"name": "@packages/utils", "version": "1.0.0"}',
+						"/workspace/tools/typescript-config/package.json":
+							'{"name": "@tools/typescript-config", "private": true}',
+					};
+					return Promise.resolve(packageNames[filePath] ?? "");
+				});
 
 				const result = await EntityPackage.getAllPackages();
 
 				expect(result).toContain("root");
-				expect(result).toContain("test-app");
-				expect(result).toContain("another-app");
-				expect(result).toContain("@repo/ui");
-				expect(result).toContain("@repo/utils");
+				expect(result).toContain("@apps/test-app");
+				expect(result).toContain("@apps/another-app");
+				expect(result).toContain("@packages/ui");
+				expect(result).toContain("@packages/utils");
+				expect(result).toContain("@tools/typescript-config");
 			});
 
-			it("should handle empty directories gracefully", async () => {
-				// Mock packagesShell methods for this test
+			it("should handle missing workspaces field gracefully", async () => {
 				mockPackagesShell.getWorkspaceRoot.mockResolvedValueOnce("/workspace");
-				mockPackagesShell.readDirectory
-					.mockResolvedValueOnce([]) // apps
-					.mockResolvedValueOnce([]); // packages
+				mockPackagesShell.readJsonFile.mockImplementation((filePath: string) => {
+					if (filePath === "/workspace/package.json") {
+						return { name: "root" };
+					}
+					return mockPackageJson();
+				});
 
 				const result = await EntityPackage.getAllPackages();
 				expect(result).toEqual(["root"]);
 			});
 
 			it("should filter out packages without valid package.json", async () => {
-				// Mock packagesShell methods for this test
 				mockPackagesShell.getWorkspaceRoot.mockResolvedValueOnce("/workspace");
-				mockPackagesShell.readDirectory
-					.mockResolvedValueOnce(["invalid-app"]) // apps
-					.mockResolvedValueOnce(["invalid-pkg"]); // packages
-				mockPackagesShell.canAccessFile
-					.mockResolvedValueOnce(false) // apps/invalid-app/package.json
-					.mockResolvedValueOnce(false); // packages/invalid-pkg/package.json
+				mockPackagesShell.readJsonFile.mockImplementation((filePath: string) => {
+					if (filePath === "/workspace/package.json") {
+						return {
+							name: "root",
+							workspaces: ["apps/*", "packages/*", "tools/*"],
+						};
+					}
+					return mockPackageJson();
+				});
+				mockPackagesShell.readDirectory.mockImplementation((dirPath: string) => {
+					if (dirPath.endsWith("/apps")) return Promise.resolve(["invalid-app"]);
+					if (dirPath.endsWith("/packages")) return Promise.resolve(["invalid-pkg"]);
+					if (dirPath.endsWith("/tools")) return Promise.resolve(["invalid-tool"]);
+					return Promise.resolve([]);
+				});
+				mockPackagesShell.canAccessFile.mockResolvedValue(false);
 
 				const result = await EntityPackage.getAllPackages();
 				expect(result).toEqual(["root"]);
@@ -730,23 +767,23 @@ describe("EntityPackage", () => {
 	describe("edge cases and error handling", () => {
 		it("should handle package names with special characters", () => {
 			const specialPackages = new EntityPackage("test-package@1.0.0");
-			expect(specialPackages.getPath()).toBe("apps/test-package@1.0.0");
+			expect(specialPackages.getPath()).toBe("test-package@1.0.0");
 		});
 
 		it("should handle empty package name", () => {
 			const emptyPackages = new EntityPackage("");
-			expect(emptyPackages.getPath()).toBe("apps/");
+			expect(emptyPackages.getPath()).toBe("");
 		});
 
 		it("should handle very long package names", () => {
 			const longName = "a".repeat(1000);
 			const longPackages = new EntityPackage(longName);
-			expect(longPackages.getPath()).toBe(`apps/${longName}`);
+			expect(longPackages.getPath()).toBe(longName);
 		});
 
 		it("should handle package names with spaces", () => {
 			const spacedPackages = new EntityPackage("test package");
-			expect(spacedPackages.getPath()).toBe("apps/test package");
+			expect(spacedPackages.getPath()).toBe("test package");
 		});
 	});
 
@@ -762,12 +799,12 @@ describe("EntityPackage", () => {
 				.mockResolvedValueOnce(true); // packages/ui/package.json
 			mockPackagesShell.readFileAsText
 				.mockResolvedValueOnce('{"name": "test-app", "version": "1.0.0", "private": false}')
-				.mockResolvedValueOnce('{"name": "@repo/ui", "version": "1.0.0", "private": false}');
+				.mockResolvedValueOnce('{"name": "@packages/ui", "version": "1.0.0", "private": false}');
 
 			const result = await EntityPackage.getVersionedPackages();
 			expect(Array.isArray(result)).toBe(true);
 			expect(result).toContain("test-app");
-			expect(result).toContain("@repo/ui");
+			expect(result).toContain("@packages/ui");
 		});
 	});
 
@@ -779,7 +816,7 @@ describe("EntityPackage", () => {
 					return { name: "test-app", version: "1.0.0", private: true };
 				}
 				if (path.includes("ui")) {
-					return { name: "@repo/ui", version: "1.0.0", private: true };
+					return { name: "@packages/ui", version: "1.0.0", private: true };
 				}
 				// Default fallback
 				return mockPackageJson();
@@ -795,12 +832,12 @@ describe("EntityPackage", () => {
 				.mockResolvedValueOnce(true); // packages/ui/package.json
 			mockPackagesShell.readFileAsText
 				.mockResolvedValueOnce('{"name": "test-app", "version": "1.0.0", "private": true}')
-				.mockResolvedValueOnce('{"name": "@repo/ui", "version": "1.0.0", "private": true}');
+				.mockResolvedValueOnce('{"name": "@packages/ui", "version": "1.0.0", "private": true}');
 
 			const result = await EntityPackage.getUnversionedPackages();
 			expect(Array.isArray(result)).toBe(true);
 			expect(result).toContain("test-app");
-			expect(result).toContain("@repo/ui");
+			expect(result).toContain("@packages/ui");
 		});
 	});
 
@@ -816,7 +853,7 @@ describe("EntityPackage", () => {
 				.mockResolvedValueOnce(true); // packages/ui/package.json
 			mockPackagesShell.readFileAsText
 				.mockResolvedValueOnce('{"name": "test-app", "version": "1.0.0", "private": false}')
-				.mockResolvedValueOnce('{"name": "@repo/ui", "version": "1.0.0", "private": false}');
+				.mockResolvedValueOnce('{"name": "@packages/ui", "version": "1.0.0", "private": false}');
 
 			const result = await EntityPackage.validateAllPackages();
 			expect(Array.isArray(result)).toBe(true);
@@ -824,7 +861,7 @@ describe("EntityPackage", () => {
 			expect(result).toHaveLength(3);
 			expect(result).toContain("root: Consider adding a description to package.json");
 			expect(result).toContain("test-app: Consider adding a description to package.json");
-			expect(result).toContain("@repo/ui: Consider adding a description to package.json");
+			expect(result).toContain("@packages/ui: Consider adding a description to package.json");
 		});
 	});
 });
